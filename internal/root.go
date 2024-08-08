@@ -22,6 +22,7 @@ func NewRoot() (*Root, error) {
 		RemoteAlreadyExists: svc.ErrRemoteAlreadyExists,
 		RepoAlreadyExists:   svc.ErrRepoAlreadyExists,
 		RepoNotFound:        svc.ErrRepoNotFound,
+		PullFailed:          svc.ErrPullFailed,
 	})
 	if err != nil {
 		return nil, err
