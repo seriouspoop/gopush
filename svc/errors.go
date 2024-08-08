@@ -3,6 +3,7 @@ package svc
 import "errors"
 
 var (
+	ErrPullFailed          = errors.New("remote pull failed")
 	ErrBranchInvalid       = errors.New("invalid branch")
 	ErrBranchAlreadyExist  = errors.New("branch already exist")
 	ErrTestsFailed         = errors.New("tests failed")

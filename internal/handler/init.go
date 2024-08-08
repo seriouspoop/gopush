@@ -76,6 +76,9 @@ func Init(s servicer) *cobra.Command {
 			fmt.Println("Pulling commits from main...")
 			err = s.Pull()
 			if err != nil {
+				if errors.Is(err, svc.ErrPullFailed) {
+					fmt.Println("Remote pull failed, try pulling manually.")
+				}
 				return err
 			}
 			// output, err := bash.PullBranch(currBranch)

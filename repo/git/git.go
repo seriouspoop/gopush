@@ -22,6 +22,7 @@ type Errors struct {
 	RemoteAlreadyExists error
 	RepoAlreadyExists   error
 	RepoNotFound        error
+	PullFailed          error
 }
 
 type Git struct {
@@ -151,6 +152,9 @@ func (g *Git) Pull(remote *model.Remote, branch model.Branch, auth *config.Crede
 			Password: auth.Token,
 		},
 	})
+	if errors.Is(err, git.ErrNonFastForwardUpdate) {
+		return g.err.PullFailed
+	}
 	return err
 }
 
