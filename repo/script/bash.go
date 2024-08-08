@@ -33,8 +33,13 @@ func (b *Bash) GetCurrentBranch() (model.Branch, error) {
 	return model.Branch(string(output[:len(output)-1])), nil
 }
 
-func (b *Bash) PullBranch(branch model.Branch) (string, error) {
-	cmd := exec.Command("git", "pull", "origin", branch.String())
+func (b *Bash) PullBranch(remoteName string, branch model.Branch, force bool) (string, error) {
+	var cmd *exec.Cmd
+	if force {
+		cmd = exec.Command("git", "pull", remoteName, branch.String(), "--allow-unrelated-histories")
+	} else {
+		cmd = exec.Command("git", "pull", remoteName, branch.String())
+	}
 	output, err := cmd.CombinedOutput()
 	return string(output[:len(output)-1]), err
 }

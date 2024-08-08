@@ -58,13 +58,17 @@ func (s *Svc) InitializeRemote() error {
 	return nil
 }
 
-func (s *Svc) Pull() error {
+func (s *Svc) Pull(force bool) error {
 	currBranch, err := s.bash.GetCurrentBranch()
 	if err != nil {
 		return err
 	}
 	remote, err := s.git.GetRemoteDetails()
 	if err != nil {
+		return err
+	}
+	if force {
+		_, err = s.bash.PullBranch(remote.Name, currBranch, true)
 		return err
 	}
 	if s.cfg == nil {

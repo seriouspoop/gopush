@@ -25,7 +25,7 @@ type gitHelper interface {
 
 type scriptHelper interface {
 	GetCurrentBranch() (model.Branch, error)
-	PullBranch(branch model.Branch) (string, error)
+	PullBranch(remoteName string, branch model.Branch, force bool) (string, error)
 	GenerateMocks() (string, error)
 	TestsPresent() (bool, error)
 	RunTests() (string, error)

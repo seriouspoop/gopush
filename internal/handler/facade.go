@@ -8,6 +8,6 @@ type servicer interface {
 	SetRemoteAuth() error
 	LoadConfig() error
 	// FetchAndMerge() error
-	Pull() error
+	Pull(force bool) error
 	StageChanges() error
 }

@@ -151,6 +151,8 @@ func (g *Git) Pull(remote *model.Remote, branch model.Branch, auth *config.Crede
 			Username: auth.Username,
 			Password: auth.Token,
 		},
+		Progress: os.Stdout,
+		Force:    true,
 	})
 	if errors.Is(err, git.ErrNonFastForwardUpdate) {
 		return g.err.PullFailed
