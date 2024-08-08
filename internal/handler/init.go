@@ -74,7 +74,7 @@ func Init(s servicer) *cobra.Command {
 			fmt.Println("✅ changes staged")
 			// //TODO - implement pull origin main & merge remote/origin/main
 			fmt.Println("Pulling commits from main...")
-			err = s.Pull(false)
+			err = s.Pull(true)
 			if err != nil {
 				if errors.Is(err, svc.ErrPullFailed) {
 					fmt.Println("Remote pull failed, try pulling manually.")
