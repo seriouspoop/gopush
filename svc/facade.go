@@ -10,7 +10,7 @@ import (
 type gitHelper interface {
 	GetRepo() error
 	CreateRepo() error
-	Fetch() error
+	// Fetch() error
 	// Merge(remoteName string, branchName model.Branch) error
 	CreateBranch(name model.Branch) error
 	GetBranchNames() ([]model.Branch, error)
@@ -21,6 +21,7 @@ type gitHelper interface {
 	ChangeOccured() (bool, error)
 	AddThenCommit() error
 	Pull(remote *model.Remote, branch model.Branch, auth *config.Credentials) error
+	Push(remote *model.Remote, branch model.Branch, auth *config.Credentials) error
 }
 
 type scriptHelper interface {

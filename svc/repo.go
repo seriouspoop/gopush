@@ -58,8 +58,8 @@ func (s *Svc) InitializeRemote() error {
 	return nil
 }
 
-func (s *Svc) Pull(force bool) error {
-	currBranch, err := s.bash.GetCurrentBranch()
+func (s *Svc) Pull(initial bool) error {
+	pullBranch, err := s.bash.GetCurrentBranch()
 	if err != nil {
 		return err
 	}
@@ -67,16 +67,82 @@ func (s *Svc) Pull(force bool) error {
 	if err != nil {
 		return err
 	}
-	if force {
-		_, err = s.bash.PullBranch(remote.Name, currBranch, true)
+	if initial {
+		_, err = s.bash.PullBranch(remote.Name, pullBranch, true)
 		return err
 	}
 	if s.cfg == nil {
 		return ErrConfigNotLoaded
 	}
-	return s.git.Pull(remote, currBranch, s.cfg.ProviderAuth(remote.Provider()))
+	return s.git.Pull(remote, pullBranch, s.cfg.ProviderAuth(remote.Provider()))
+}
+
+func (s *Svc) SwitchBranchIfExists(branch model.Branch) (bool, error) {
+	branches, err := s.git.GetBranchNames()
+	if err != nil {
+		return false, err
+	}
+	for _, br := range branches {
+		if br.String() == branch.String() {
+			fmt.Printf("Branch %s already exists. Switching branch...\n", branch.String())
+			err = s.git.CheckoutBranch(branch)
+			return true, err
+		}
+	}
+	return false, nil
+}
+
+func (s *Svc) CreateBranchAndSwitch(branch model.Branch) error {
+	err := s.git.CreateBranch(branch)
+	if err != nil {
+		return err
+	}
+	return s.git.CheckoutBranch(branch)
 }
 
 func (s *Svc) StageChanges() error {
-	return s.git.AddThenCommit()
+	change, err := s.git.ChangeOccured()
+	if err != nil {
+		return err
+	}
+	if change {
+		err := s.git.AddThenCommit()
+		if err != nil {
+			return err
+		}
+		fmt.Println("✅ Files added.")
+	}
+	return nil
+}
+
+func (s *Svc) Push(setUpstreamBranch bool) error {
+	currBranch, err := s.bash.GetCurrentBranch()
+	if err != nil {
+		return err
+	}
+	if setUpstreamBranch {
+		output, err := s.bash.Push(currBranch, true)
+		if err != nil {
+			fmt.Println(output)
+			return err
+		}
+	} else {
+		remoteDetails, err := s.git.GetRemoteDetails()
+		if err != nil {
+			return err
+		}
+		if s.cfg == nil {
+			return ErrConfigNotLoaded
+		}
+		providerAuth := s.cfg.ProviderAuth(remoteDetails.Provider())
+		if providerAuth == nil {
+			return ErrAuthNotFound
+		}
+		err = s.git.Push(remoteDetails, currBranch, providerAuth)
+		if err != nil {
+			return err
+		}
+	}
+	fmt.Println("✅ Push Successful.")
+	return nil
 }

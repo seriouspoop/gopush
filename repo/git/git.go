@@ -114,28 +114,28 @@ func (g *Git) AddRemote(remote *model.Remote) error {
 	return err
 }
 
-func (g *Git) Fetch() error {
-	if g.remote == nil {
-		return g.err.RemoteNotLoaded
-	}
-	fetchOpts := &git.FetchOptions{
-		RemoteName: g.remote.Config().Name,
-		RemoteURL:  g.remote.Config().URLs[0],
-		Force:      false,
-		Prune:      false,
-		Progress:   os.Stdout,
-		RefSpecs: []gitCfg.RefSpec{
-			gitCfg.RefSpec("+refs/heads/*:refs/remotes/origin/*"),
-		},
-		InsecureSkipTLS: true,
-	}
-	err := g.remote.Fetch(fetchOpts)
-	if err == git.NoErrAlreadyUpToDate {
-		return nil
-	}
+// func (g *Git) Fetch() error {
+// 	if g.remote == nil {
+// 		return g.err.RemoteNotLoaded
+// 	}
+// 	fetchOpts := &git.FetchOptions{
+// 		RemoteName: g.remote.Config().Name,
+// 		RemoteURL:  g.remote.Config().URLs[0],
+// 		Force:      false,
+// 		Prune:      false,
+// 		Progress:   os.Stdout,
+// 		RefSpecs: []gitCfg.RefSpec{
+// 			gitCfg.RefSpec("+refs/heads/*:refs/remotes/origin/*"),
+// 		},
+// 		InsecureSkipTLS: true,
+// 	}
+// 	err := g.remote.Fetch(fetchOpts)
+// 	if err == git.NoErrAlreadyUpToDate {
+// 		return nil
+// 	}
 
-	return err
-}
+// 	return err
+// }
 
 func (g *Git) Pull(remote *model.Remote, branch model.Branch, auth *config.Credentials) error {
 	w, err := g.repo.Worktree()
@@ -159,18 +159,6 @@ func (g *Git) Pull(remote *model.Remote, branch model.Branch, auth *config.Crede
 	}
 	return err
 }
-
-// func (g *Git) Merge(remoteName, branchName string) error {
-// 	remoteBranchRefName := plumbing.NewRemoteReferenceName(remoteName, branchName)
-// 	remoteBranchRef, err := g.repo.Reference(remoteBranchRefName, true)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	fmt.Println(remoteBranchRef.Name(), remoteBranchRef.Hash().String())
-// 	return g.repo.Merge(*remoteBranchRef, git.MergeOptions{
-// 		Strategy: git.FastForwardMerge,
-// 	})
-// }
 
 func (g *Git) GetBranchNames() ([]model.Branch, error) {
 	iter, err := g.repo.Branches()
@@ -266,5 +254,27 @@ func (g *Git) AddThenCommit() error {
 		AllowEmptyCommits: false,
 		Amend:             false,
 	})
+	return err
+}
+
+func (g *Git) Push(remote *model.Remote, branch model.Branch, auth *config.Credentials) error {
+	err := g.remote.Push(&git.PushOptions{
+		RemoteName: remote.Name,
+		RemoteURL:  remote.Url,
+		Prune:      false,
+		RefSpecs: []gitCfg.RefSpec{
+			gitCfg.RefSpec(fmt.Sprintf("+refs/heads/%s:refs/remotes/origin/%s", branch.String(), branch.String())),
+		},
+		Force:    false,
+		Progress: os.Stdout,
+		Auth: &http.BasicAuth{
+			Username: auth.Username,
+			Password: auth.Token,
+		},
+	})
+
+	if errors.Is(err, git.NoErrAlreadyUpToDate) {
+		return nil
+	}
 	return err
 }

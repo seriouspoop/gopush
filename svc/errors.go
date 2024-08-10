@@ -14,4 +14,5 @@ var (
 	ErrRepoNotFound        = errors.New("repository not found")
 	ErrConfigNotLoaded     = errors.New("config not loaded")
 	ErrFileNotFound        = errors.New("file not found")
+	ErrAuthNotFound        = errors.New("auth credentials not found")
 )

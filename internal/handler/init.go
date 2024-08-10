@@ -71,8 +71,7 @@ func Init(s servicer) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			fmt.Println("✅ changes staged")
-			// //TODO - implement pull origin main & merge remote/origin/main
+			fmt.Println("✅ changes staged.")
 			fmt.Println("Pulling commits from main...")
 			err = s.Pull(true)
 			if err != nil {
@@ -81,20 +80,11 @@ func Init(s servicer) *cobra.Command {
 				}
 				return err
 			}
-			// output, err := bash.PullBranch(currBranch)
-			// if err != nil {
-			// 	fmt.Println(output)
-			// 	return ErrMergeOverwritingConflict
-			// }
-			// if verbose {
-			// 	fmt.Println(output)
-			// }
 			fmt.Println(heredoc.Doc(`
 				✅ Pulled remote changes
 
 				Now you will be able to use "gopush run" command for you workflow.
-				See "gopush run --help" for more details.
-			`))
+				See "gopush run --help" for more details.`))
 			return nil
 		},
 	}

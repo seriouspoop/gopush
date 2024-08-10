@@ -1,9 +1,12 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/MakeNowJust/heredoc/v2"
+	"github.com/seriouspoop/gopush/model"
+	"github.com/seriouspoop/gopush/svc"
 	"github.com/spf13/cobra"
 )
 
@@ -51,92 +54,57 @@ func Run(s servicer) *cobra.Command {
 			}
 
 			//TODO - use svc package
-			// fmt.Println("Fetching remote changes...")
-			// err = s.FetchAndMerge()
-			// if err != nil {
-			// 	return err
-			// }
-			// fmt.Println("✅ changes fetched.")
+			fmt.Println("Pulling remote changes...")
+			err = s.Pull(false)
+			if err != nil {
+				return err
+			}
+			fmt.Println("✅ changes fetched.")
 			return nil
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// branchExist := false
-			// branch := model.Branch(newBranch)
-			// if branch.Valid() {
-			// 	branches, err := git.GetBranchNames()
-			// 	if err != nil {
-			// 		return err
-			// 	}
-			// 	for _, br := range branches {
-			// 		if br.String() == branch.String() {
-			// 			fmt.Printf("Branch %s already exists. Switching branch...\n", branch.String())
-			// 			branchExist = true
-			// 			break
-			// 		}
-			// 	}
-			// 	if !branchExist {
-			// 		err := git.CreateBranch(branch)
-			// 		if err != nil {
-			// 			return err
-			// 		}
-			// 	}
+			branch := model.Branch(newBranch)
+			if branch.Valid() {
+				branchExist := false
+				branchExist, err := s.SwitchBranchIfExists(branch)
+				if err != nil {
+					return err
+				}
+				if !branchExist {
+					err = s.CreateBranchAndSwitch(branch)
+					if err != nil {
+						return err
+					}
+				}
+			}
 
-			// 	err = git.CheckoutBranch(branch)
-			// 	if err != nil {
-			// 		return err
-			// 	}
+			// Generate Tests and Run
+			testPresent, err := s.CheckTestsAndRun()
+			if err != nil {
+				return err
+			}
+			if testPresent {
+				fmt.Println("✅ All tests passed. Staging changes...")
+			} else {
+				fmt.Println("No tests found. Staging changes...")
+			}
 
-			// } else if branch.String() != "" {
-			// 	fmt.Println("Branch name: ", branch.String())
-			// 	return ErrBranchInvalid
-			// }
+			// stage changes
+			err = s.StageChanges()
+			if err != nil {
+				return err
+			}
 
-			// present, err := bash.TestsPresent()
-			// if err != nil {
-			// 	return err
-			// }
-			// if present {
-			// 	fmt.Println("\nGenerating and Running tests...")
-			// 	output, _ := bash.GenerateMocks()
-			// 	fmt.Print(output)
-			// 	output, err := bash.RunTests()
-			// 	fmt.Print(output)
-			// 	if err != nil {
-			// 		return ErrTestsFailed
-			// 	}
-			// 	fmt.Println("✅ All Tests passed. Staging changes.")
-			// } else {
-			// 	fmt.Println("No test files found, continuing...")
-			// }
-			// change, err := git.ChangeOccured()
-			// if err != nil {
-			// 	return err
-			// }
-			// if change {
-			// 	err := git.AddThenCommit()
-			// 	if err != nil {
-			// 		return err
-			// 	}
-			// 	fmt.Println("✅ Files added.")
-			// }
-			// currBranch, err := bash.GetCurrentBranch()
-			// if err != nil {
-			// 	return err
-			// }
-			// if setUpstreamBranch {
-			// 	output, err := bash.Push(currBranch, true)
-			// 	if err != nil {
-			// 		fmt.Println(output)
-			// 		return err
-			// 	}
-			// } else {
-			// 	output, err := bash.Push(currBranch, false)
-			// 	if err != nil {
-			// 		fmt.Println(output)
-			// 		return err
-			// 	}
-			// }
-			// fmt.Println("✅ Push Successful.")
+			// Push changes
+			err = s.Push(setUpstreamBranch)
+			if err != nil {
+				if errors.Is(err, svc.ErrAuthNotFound) {
+					fmt.Println(heredoc.Doc(`
+					Auth credentials for current remote are missing.
+					Run "gopush init" first to setup auth credentials.
+					`))
+				}
+			}
 			return nil
 		},
 	}
