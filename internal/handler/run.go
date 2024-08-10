@@ -97,6 +97,7 @@ func Run(s servicer) *cobra.Command {
 			//TODO -> pull and merge from main
 
 			// Push changes
+			fmt.Println("Pushing changes...")
 			output, err := s.Push(setUpstreamBranch)
 			if err != nil {
 				fmt.Println(output)
