@@ -19,6 +19,11 @@ func (s *Svc) LoadConfig() error {
 	if err != nil {
 		return err
 	}
+
+	if !s.bash.FileExists(configFile, userDir) {
+		return ErrFileNotFound
+	}
+
 	s.cfg, err = config.Read(configFile, userDir)
 	if err != nil {
 		return err
@@ -92,7 +97,7 @@ func (s *Svc) SetRemoteAuth() error {
 
 	provider := remoteDetails.Provider()
 	if cfg.ProviderAuth(provider) == nil {
-		fmt.Println("Auth credentials not found.")
+		fmt.Println("\nAuth credentials not found.")
 		fmt.Println("Gathering auth details...")
 		username, token, err := s.authInput(provider.String())
 		if err != nil {

@@ -50,6 +50,12 @@ func Run(s servicer) *cobra.Command {
 			// Load config
 			err = s.LoadConfig()
 			if err != nil {
+				if errors.Is(err, svc.ErrFileNotFound) {
+					fmt.Println(heredoc.Doc(`
+					Config file not found.
+					Use "gopush init" to generate your config file.
+					`))
+				}
 				return err
 			}
 

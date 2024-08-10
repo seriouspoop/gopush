@@ -266,8 +266,7 @@ func (g *Git) Push(remote *model.Remote, branch model.Branch, auth *config.Crede
 		RemoteURL:  remote.Url,
 		Prune:      false,
 		RefSpecs: []gitCfg.RefSpec{
-			// gitCfg.RefSpec(fmt.Sprintf("+refs/heads/%s:refs/remotes/origin/%s", branch.String(), branch.String())),
-			gitCfg.RefSpec("+refs/heads/*:refs/remotes/origin/*"),
+			gitCfg.RefSpec(fmt.Sprintf("+refs/heads/%s:refs/remotes/origin/%s", branch.String(), branch.String())),
 		},
 		Force:    false,
 		Progress: os.Stdout,
