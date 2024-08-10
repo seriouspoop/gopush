@@ -114,29 +114,6 @@ func (g *Git) AddRemote(remote *model.Remote) error {
 	return err
 }
 
-// func (g *Git) Fetch() error {
-// 	if g.remote == nil {
-// 		return g.err.RemoteNotLoaded
-// 	}
-// 	fetchOpts := &git.FetchOptions{
-// 		RemoteName: g.remote.Config().Name,
-// 		RemoteURL:  g.remote.Config().URLs[0],
-// 		Force:      false,
-// 		Prune:      false,
-// 		Progress:   os.Stdout,
-// 		RefSpecs: []gitCfg.RefSpec{
-// 			gitCfg.RefSpec("+refs/heads/*:refs/remotes/origin/*"),
-// 		},
-// 		InsecureSkipTLS: true,
-// 	}
-// 	err := g.remote.Fetch(fetchOpts)
-// 	if err == git.NoErrAlreadyUpToDate {
-// 		return nil
-// 	}
-
-// 	return err
-// }
-
 func (g *Git) Pull(remote *model.Remote, branch model.Branch, auth *config.Credentials) error {
 	w, err := g.repo.Worktree()
 	if err != nil {
@@ -265,6 +242,7 @@ func (g *Git) Push(remote *model.Remote, branch model.Branch, auth *config.Crede
 		RemoteURL:  remote.Url,
 		Prune:      false,
 		RefSpecs: []gitCfg.RefSpec{
+			// final refspecs
 			gitCfg.RefSpec(fmt.Sprintf("+refs/heads/%s:refs/heads/%s", branch.String(), branch.String())),
 		},
 		Force:    true,
