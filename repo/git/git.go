@@ -274,7 +274,7 @@ func (g *Git) Push(remote *model.Remote, branch model.Branch, auth *config.Crede
 			Password: auth.Token,
 		},
 	})
-
+	fmt.Println(err)
 	if errors.Is(err, git.NoErrAlreadyUpToDate) {
 		return nil
 	}
