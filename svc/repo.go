@@ -115,34 +115,34 @@ func (s *Svc) StageChanges() error {
 	return nil
 }
 
-func (s *Svc) Push(setUpstreamBranch bool) error {
+func (s *Svc) Push(setUpstreamBranch bool) (output string, err error) {
 	currBranch, err := s.bash.GetCurrentBranch()
 	if err != nil {
-		return err
+		return "", err
 	}
 	if setUpstreamBranch {
-		output, err := s.bash.Push(currBranch, true)
+		output, err = s.bash.Push(currBranch, true)
 		if err != nil {
 			fmt.Println(output)
-			return err
+			return "", err
 		}
 	} else {
 		remoteDetails, err := s.git.GetRemoteDetails()
 		if err != nil {
-			return err
+			return "", err
 		}
 		if s.cfg == nil {
-			return ErrConfigNotLoaded
+			return "", ErrConfigNotLoaded
 		}
 		providerAuth := s.cfg.ProviderAuth(remoteDetails.Provider())
 		if providerAuth == nil {
-			return ErrAuthNotFound
+			return "", ErrAuthNotFound
 		}
 		err = s.git.Push(remoteDetails, currBranch, providerAuth)
 		if err != nil {
-			return err
+			return "", err
 		}
 	}
 	fmt.Println("✅ Push Successful.")
-	return nil
+	return
 }

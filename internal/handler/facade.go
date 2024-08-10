@@ -15,5 +15,5 @@ type servicer interface {
 	SwitchBranchIfExists(branch model.Branch) (bool, error)
 	CreateBranchAndSwitch(branch model.Branch) error
 	CheckTestsAndRun() (bool, error)
-	Push(setUpstreamBranch bool) error
+	Push(setUpstreamBranch bool) (output string, err error)
 }

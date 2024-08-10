@@ -53,7 +53,6 @@ func Run(s servicer) *cobra.Command {
 				return err
 			}
 
-			//TODO - use svc package
 			fmt.Println("Pulling remote changes...")
 			err = s.Pull(false)
 			if err != nil {
@@ -95,16 +94,21 @@ func Run(s servicer) *cobra.Command {
 				return err
 			}
 
+			//TODO -> pull and merge from main
+
 			// Push changes
-			err = s.Push(setUpstreamBranch)
+			output, err := s.Push(setUpstreamBranch)
 			if err != nil {
+				fmt.Println(output)
 				if errors.Is(err, svc.ErrAuthNotFound) {
 					fmt.Println(heredoc.Doc(`
 					Auth credentials for current remote are missing.
 					Run "gopush init" first to setup auth credentials.
 					`))
 				}
+				return err
 			}
+			fmt.Println(output)
 			return nil
 		},
 	}
