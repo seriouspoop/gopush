@@ -260,7 +260,6 @@ func (g *Git) AddThenCommit() error {
 }
 
 func (g *Git) Push(remote *model.Remote, branch model.Branch, auth *config.Credentials) error {
-	fmt.Println(auth.Username, auth.Token)
 	err := g.remote.Push(&git.PushOptions{
 		RemoteName: remote.Name,
 		RemoteURL:  remote.Url,
