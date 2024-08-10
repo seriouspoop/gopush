@@ -156,6 +156,8 @@ func (g *Git) Pull(remote *model.Remote, branch model.Branch, auth *config.Crede
 	})
 	if errors.Is(err, git.ErrNonFastForwardUpdate) {
 		return g.err.PullFailed
+	} else if errors.Is(err, git.NoErrAlreadyUpToDate) {
+		return nil
 	}
 	return err
 }
