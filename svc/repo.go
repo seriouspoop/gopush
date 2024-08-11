@@ -74,7 +74,11 @@ func (s *Svc) Pull(initial bool) error {
 	if s.cfg == nil {
 		return ErrConfigNotLoaded
 	}
-	return s.git.Pull(remote, pullBranch, s.cfg.ProviderAuth(remote.Provider()))
+	providerAuth := s.cfg.ProviderAuth(remote.Provider())
+	if providerAuth == nil {
+		return ErrAuthNotFound
+	}
+	return s.git.Pull(remote, pullBranch, providerAuth)
 }
 
 func (s *Svc) SwitchBranchIfExists(branch model.Branch) (bool, error) {

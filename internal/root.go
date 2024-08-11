@@ -23,6 +23,7 @@ func NewRoot() (*Root, error) {
 		RepoAlreadyExists:   svc.ErrRepoAlreadyExists,
 		RepoNotFound:        svc.ErrRepoNotFound,
 		PullFailed:          svc.ErrPullFailed,
+		AuthNotFound:        svc.ErrAuthNotFound,
 	})
 	if err != nil {
 		return nil, err

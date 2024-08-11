@@ -62,6 +62,12 @@ func Run(s servicer) *cobra.Command {
 			fmt.Println("Pulling remote changes...")
 			err = s.Pull(false)
 			if err != nil {
+				if errors.Is(err, svc.ErrAuthNotFound) {
+					fmt.Println(heredoc.Doc(`
+					Auth credentials for current remote not found.
+					Use "gopush init" to generate your config file.
+					`))
+				}
 				return err
 			}
 			fmt.Println("✅ changes fetched.")

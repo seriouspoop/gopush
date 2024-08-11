@@ -23,6 +23,7 @@ type Errors struct {
 	RepoAlreadyExists   error
 	RepoNotFound        error
 	PullFailed          error
+	AuthNotFound        error
 }
 
 type Git struct {
@@ -115,6 +116,9 @@ func (g *Git) AddRemote(remote *model.Remote) error {
 }
 
 func (g *Git) Pull(remote *model.Remote, branch model.Branch, auth *config.Credentials) error {
+	if auth == nil {
+		return g.err.AuthNotFound
+	}
 	w, err := g.repo.Worktree()
 	if err != nil {
 		return err
