@@ -11,7 +11,9 @@ import (
 	"github.com/go-git/go-git/v5"
 	gitCfg "github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing"
+	"github.com/go-git/go-git/v5/plumbing/transport"
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
+	"github.com/go-git/go-git/v5/plumbing/transport/ssh"
 	"github.com/seriouspoop/gopush/config"
 	"github.com/seriouspoop/gopush/model"
 )
@@ -24,6 +26,7 @@ type Errors struct {
 	RepoNotFound        error
 	PullFailed          error
 	AuthNotFound        error
+	InvalidAuthMethod   error
 }
 
 type Git struct {
@@ -115,7 +118,7 @@ func (g *Git) AddRemote(remote *model.Remote) error {
 	return err
 }
 
-func (g *Git) Pull(remote *model.Remote, branch model.Branch, auth *config.Credentials) error {
+func (g *Git) Pull(remote *model.Remote, branch model.Branch, authType model.AuthMode, auth *config.Credentials) error {
 	if auth == nil {
 		return g.err.AuthNotFound
 	}
@@ -123,17 +126,28 @@ func (g *Git) Pull(remote *model.Remote, branch model.Branch, auth *config.Crede
 	if err != nil {
 		return err
 	}
+	var Auth transport.AuthMethod
+	if authType == model.AuthHTTP {
+		Auth = &http.BasicAuth{
+			Username: auth.Username,
+			Password: auth.Token,
+		}
+	} else if authType == model.AuthSSH {
+		Auth = &ssh.Password{
+			User:     auth.Username,
+			Password: auth.Token,
+		}
+	} else {
+		return g.err.InvalidAuthMethod
+	}
 	err = w.Pull(&git.PullOptions{
 		RemoteName:    remote.Name,
 		RemoteURL:     remote.Url,
 		ReferenceName: plumbing.NewBranchReferenceName(branch.String()),
 		SingleBranch:  true,
-		Auth: &http.BasicAuth{
-			Username: auth.Username,
-			Password: auth.Token,
-		},
-		Progress: os.Stdout,
-		Force:    false,
+		Auth:          Auth,
+		Progress:      os.Stdout,
+		Force:         false,
 	})
 	if errors.Is(err, git.ErrNonFastForwardUpdate) {
 		return g.err.PullFailed
@@ -240,7 +254,21 @@ func (g *Git) AddThenCommit() error {
 	return err
 }
 
-func (g *Git) Push(remote *model.Remote, branch model.Branch, auth *config.Credentials) error {
+func (g *Git) Push(remote *model.Remote, branch model.Branch, authType model.AuthMode, auth *config.Credentials) error {
+	var Auth transport.AuthMethod
+	if authType == model.AuthHTTP {
+		Auth = &http.BasicAuth{
+			Username: auth.Username,
+			Password: auth.Token,
+		}
+	} else if authType == model.AuthSSH {
+		Auth = &ssh.Password{
+			User:     auth.Username,
+			Password: auth.Token,
+		}
+	} else {
+		return g.err.InvalidAuthMethod
+	}
 	err := g.remote.Push(&git.PushOptions{
 		RemoteName: remote.Name,
 		RemoteURL:  remote.Url,
@@ -251,10 +279,7 @@ func (g *Git) Push(remote *model.Remote, branch model.Branch, auth *config.Crede
 		},
 		Force:    true,
 		Progress: os.Stdout,
-		Auth: &http.BasicAuth{
-			Username: auth.Username,
-			Password: auth.Token,
-		},
+		Auth:     Auth,
 	})
 	if errors.Is(err, git.NoErrAlreadyUpToDate) {
 		return nil

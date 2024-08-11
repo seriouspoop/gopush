@@ -78,7 +78,7 @@ func (s *Svc) Pull(initial bool) error {
 	if providerAuth == nil {
 		return ErrAuthNotFound
 	}
-	return s.git.Pull(remote, pullBranch, providerAuth)
+	return s.git.Pull(remote, pullBranch, remote.AuthMode(), providerAuth)
 }
 
 func (s *Svc) SwitchBranchIfExists(branch model.Branch) (bool, error) {
@@ -142,7 +142,7 @@ func (s *Svc) Push(setUpstreamBranch bool) (output string, err error) {
 		if providerAuth == nil {
 			return "", ErrAuthNotFound
 		}
-		err = s.git.Push(remoteDetails, currBranch, providerAuth)
+		err = s.git.Push(remoteDetails, currBranch, remoteDetails.AuthMode(), providerAuth)
 		if err != nil {
 			return "", err
 		}

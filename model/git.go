@@ -17,22 +17,30 @@ func (b Branch) Valid() bool {
 type Provider int
 
 const (
-	UNKOWN Provider = iota
-	GITHUB
-	BITBUCKET
-	GITLAB
+	ProviderUNKOWN Provider = iota
+	ProviderGITHUB
+	ProviderBITBUCKET
+	ProviderGITLAB
 )
 
 func (p Provider) String() string {
-	if p == GITHUB {
+	if p == ProviderGITHUB {
 		return "GitHub"
-	} else if p == BITBUCKET {
+	} else if p == ProviderBITBUCKET {
 		return "BitBucket"
-	} else if p == GITLAB {
+	} else if p == ProviderGITLAB {
 		return "GitLab"
 	}
 	return ""
 }
+
+type AuthMode int
+
+const (
+	AuthUNKNOWN AuthMode = iota
+	AuthHTTP
+	AuthSSH
+)
 
 type Remote struct {
 	Name string
@@ -41,12 +49,22 @@ type Remote struct {
 
 func (r *Remote) Provider() Provider {
 	if strings.Contains(r.Url, "github") {
-		return GITHUB
+		return ProviderGITHUB
 	} else if strings.Contains(r.Url, "bitbucket") {
-		return BITBUCKET
+		return ProviderBITBUCKET
 	} else if strings.Contains(r.Url, "gitlab") {
-		return GITLAB
+		return ProviderGITLAB
 	} else {
-		return UNKOWN
+		return ProviderUNKOWN
+	}
+}
+
+func (r *Remote) AuthMode() AuthMode {
+	if strings.Contains(r.Url, "http") || strings.Contains(r.Url, "https") {
+		return AuthHTTP
+	} else if strings.Contains(r.Url, "ssh") {
+		return AuthSSH
+	} else {
+		return AuthUNKNOWN
 	}
 }

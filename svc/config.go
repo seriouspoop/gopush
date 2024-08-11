@@ -108,11 +108,11 @@ func (s *Svc) SetRemoteAuth() error {
 			Token:    token,
 		}
 		switch provider {
-		case model.GITHUB:
+		case model.ProviderGITHUB:
 			cfg.Auth.GitHub = cred
-		case model.BITBUCKET:
+		case model.ProviderBITBUCKET:
 			cfg.Auth.BitBucket = cred
-		case model.GITLAB:
+		case model.ProviderGITLAB:
 			cfg.Auth.GitLab = cred
 		}
 	}

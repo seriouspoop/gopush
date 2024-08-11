@@ -15,4 +15,5 @@ var (
 	ErrConfigNotLoaded     = errors.New("config not loaded")
 	ErrFileNotFound        = errors.New("file not found")
 	ErrAuthNotFound        = errors.New("auth credentials not found")
+	ErrInvalidAuthMethod   = errors.New("invalid auth method")
 )
