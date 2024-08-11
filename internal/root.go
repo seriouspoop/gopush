@@ -46,7 +46,7 @@ func NewRoot() (*Root, error) {
 func (r *Root) RootCMD() *cobra.Command {
 	rootCMD := &cobra.Command{
 		Use:     "gopush",
-		Version: "1.0.2",
+		Version: "1.0.4",
 		Short: heredoc.Doc(`
 
 			 ██████╗   ██████╗  ██████╗  ██╗   ██╗ ███████╗ ██╗  ██╗
