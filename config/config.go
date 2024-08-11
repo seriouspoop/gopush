@@ -27,9 +27,9 @@ type Config struct {
 
 func (c *Config) ProviderAuth(p model.Provider) *Credentials {
 	providerToAuth := map[model.Provider]*Credentials{
-		model.BITBUCKET: c.Auth.BitBucket,
-		model.GITHUB:    c.Auth.GitHub,
-		model.GITLAB:    c.Auth.GitLab,
+		model.ProviderBITBUCKET: c.Auth.BitBucket,
+		model.ProviderGITHUB:    c.Auth.GitHub,
+		model.ProviderGITLAB:    c.Auth.GitLab,
 	}
 	return providerToAuth[p]
 }
