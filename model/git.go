@@ -62,7 +62,7 @@ func (r *Remote) Provider() Provider {
 func (r *Remote) AuthMode() AuthMode {
 	if strings.Contains(r.Url, "http") || strings.Contains(r.Url, "https") {
 		return AuthHTTP
-	} else if strings.Contains(r.Url, "ssh") {
+	} else if strings.Contains(r.Url, "git@") {
 		return AuthSSH
 	} else {
 		return AuthUNKNOWN
