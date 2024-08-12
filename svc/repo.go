@@ -68,7 +68,8 @@ func (s *Svc) Pull(initial bool) error {
 		return err
 	}
 	if initial {
-		_, err = s.bash.PullBranch(remote.Name, pullBranch, true)
+		output, err := s.bash.PullBranch(remote.Name, pullBranch, true)
+		fmt.Println(output)
 		return err
 	}
 	if s.cfg == nil {
