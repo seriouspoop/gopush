@@ -62,7 +62,7 @@ func (s *Svc) SetUserPreference() error {
 		cfg.DefaultRemote = remoteName
 	}
 	if cfg.BranchPrefix == "" {
-		fmt.Print(`-  Branch Prefix (default=""): `)
+		fmt.Print(`-  Branch Prefix (default=empty): `)
 		branchPrefix, err := s.r.ReadString('\n')
 		if err != nil {
 			return err
