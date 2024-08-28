@@ -109,13 +109,13 @@ func (s *Svc) CreateBranchAndSwitch(branch model.Branch) error {
 }
 
 func generateCommitMsg() (string, error) {
-	template := &promptui.SelectTemplates{
+	selecttTemplate := &promptui.SelectTemplates{
 		Active: "\U0001F892 {{ . | green }}",
 	}
 	prompt := promptui.Select{
 		Label:     "Select commit type",
 		Items:     []string{"fix", "feature", "chore", "refactor", "ci"},
-		Templates: template,
+		Templates: selecttTemplate,
 	}
 	_, commitType, err := prompt.Run()
 	if err != nil {
@@ -131,8 +131,14 @@ func generateCommitMsg() (string, error) {
 		commitType = shortner[commitType]
 	}
 
+	promptTemplate := &promptui.PromptTemplates{
+		Valid: "{{ . }}",
+		// Success: "{{ }}",
+	}
+
 	message := promptui.Prompt{
-		Label: "Commit Message",
+		Label:     "Commit Message",
+		Templates: promptTemplate,
 	}
 	msg, err := message.Run()
 	if err != nil {
