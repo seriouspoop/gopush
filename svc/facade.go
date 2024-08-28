@@ -19,7 +19,7 @@ type gitHelper interface {
 	LoadRemote(remoteName string) error
 	GetRemoteDetails() (*model.Remote, error)
 	ChangeOccured() (bool, error)
-	AddThenCommit() error
+	AddThenCommit(commitMsg string) error
 	Pull(remote *model.Remote, branch model.Branch, authType model.AuthMode, auth *config.Credentials) error
 	Push(remote *model.Remote, branch model.Branch, authType model.AuthMode, auth *config.Credentials) error
 }

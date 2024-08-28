@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/manifoldco/promptui"
 	"github.com/seriouspoop/gopush/model"
 )
 
@@ -105,13 +106,29 @@ func (s *Svc) CreateBranchAndSwitch(branch model.Branch) error {
 	return s.git.CheckoutBranch(branch)
 }
 
+func generateCommitMsg() (string, error) {
+	prompt := promptui.Select{
+		Label: "Select commit type",
+		Items: []string{"fix", "feature", "chore", "refactor", "ci"},
+	}
+	_, res, err := prompt.Run()
+	if err != nil {
+		return "", err
+	}
+	return res, nil
+}
+
 func (s *Svc) StageChanges() error {
 	change, err := s.git.ChangeOccured()
 	if err != nil {
 		return err
 	}
 	if change {
-		err := s.git.AddThenCommit()
+		commitMsg, err := generateCommitMsg()
+		if err != nil {
+			return err
+		}
+		err = s.git.AddThenCommit(commitMsg)
 		if err != nil {
 			return err
 		}

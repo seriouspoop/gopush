@@ -1,13 +1,10 @@
 package git
 
 import (
-	"bufio"
 	"errors"
 	"fmt"
 	"os"
-	"strings"
 
-	"github.com/MakeNowJust/heredoc/v2"
 	"github.com/go-git/go-git/v5"
 	gitCfg "github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing"
@@ -137,6 +134,7 @@ func (g *Git) Pull(remote *model.Remote, branch model.Branch, authType model.Aut
 			User:     auth.Username,
 			Password: auth.Token,
 		}
+		// ssh.N
 	} else {
 		return g.err.InvalidAuthMethod
 	}
@@ -194,49 +192,7 @@ func (g *Git) ChangeOccured() (bool, error) {
 	return !status.IsClean() || status.IsUntracked(g.rootDir), nil
 }
 
-func (g *Git) conventionalCommit() string {
-	var selection int
-	var commitPrefix, commitMsg string
-	isValidSelection := false
-	for !isValidSelection {
-		fmt.Print(heredoc.Doc(`
-			Select the type of commit:
-			  1. fix
-			  2. feature
-			  3. chore
-			  4. refactor
-			  5. ci
-			Select an option: `))
-		fmt.Scanf("%d", &selection)
-		if selection < 1 || selection > 5 {
-			isValidSelection = false
-			fmt.Println("invalid selection.")
-			continue
-		}
-		isValidSelection = true
-	}
-	switch selection {
-	case 1:
-		commitPrefix = "fix"
-	case 2:
-		commitPrefix = "feat"
-	case 3:
-		commitPrefix = "chore"
-	case 4:
-		commitPrefix = "ref"
-	case 5:
-		commitPrefix = "ci"
-	default:
-		commitPrefix = ""
-	}
-	fmt.Print("Enter commit message: ")
-	reader := bufio.NewReader(os.Stdin)
-	commitMsg, _ = reader.ReadString('\n')
-	commitMsg = strings.TrimSpace(commitMsg)
-	return fmt.Sprintf("%s: %s", commitPrefix, commitMsg)
-}
-
-func (g *Git) AddThenCommit() error {
+func (g *Git) AddThenCommit(commitMsg string) error {
 	w, err := g.repo.Worktree()
 	if err != nil {
 		return err
@@ -246,7 +202,7 @@ func (g *Git) AddThenCommit() error {
 		fmt.Println(err)
 		return err
 	}
-	_, err = w.Commit(g.conventionalCommit(), &git.CommitOptions{
+	_, err = w.Commit(commitMsg, &git.CommitOptions{
 		All:               true,
 		AllowEmptyCommits: false,
 		Amend:             false,
