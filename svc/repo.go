@@ -111,11 +111,31 @@ func generateCommitMsg() (string, error) {
 		Label: "Select commit type",
 		Items: []string{"fix", "feature", "chore", "refactor", "ci"},
 	}
-	_, res, err := prompt.Run()
+	_, commitType, err := prompt.Run()
 	if err != nil {
 		return "", err
 	}
-	return res, nil
+
+	shortner := map[string]string{
+		"refactor": "ref",
+		"feature":  "feat",
+	}
+
+	if _, ok := shortner[commitType]; ok {
+		commitType = shortner[commitType]
+	}
+
+	message := promptui.Prompt{
+		Label:     "Commit Message",
+		Default:   "inital",
+		AllowEdit: false,
+	}
+	msg, err := message.Run()
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("%s: %s", commitType, msg), nil
 }
 
 func (s *Svc) StageChanges() error {
