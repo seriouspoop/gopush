@@ -8,7 +8,7 @@ import (
 
 // terminal colors
 var green = color.New(color.FgGreen).SprintFunc()
-var red = color.New(color.FgHiRed).SprintFunc()
+var red = color.New(color.FgRed).SprintFunc()
 
 type status int
 

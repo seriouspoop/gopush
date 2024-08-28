@@ -91,15 +91,16 @@ func Run(s servicer) *cobra.Command {
 			}
 
 			// Generate Tests and Run
-			testPresent, err := s.CheckTestsAndRun()
+			testValid, err := s.CheckTestsAndRun()
 			if err != nil {
 				return err
 			}
-			if testPresent {
-				fmt.Println("✅ All tests passed. Staging changes...")
+			if testValid {
+				utils.Logger(utils.STATUS_SUCCESS, "All tests passed")
 			} else {
-				fmt.Println("No tests found. Staging changes...")
+				utils.Logger(utils.STATUS_FAILURE, "No tests found")
 			}
+			utils.Logger(utils.STATUS_INFO, "Staging changes...")
 
 			// stage changes
 			err = s.StageChanges()
