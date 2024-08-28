@@ -126,9 +126,7 @@ func generateCommitMsg() (string, error) {
 	}
 
 	message := promptui.Prompt{
-		Label:     "Commit Message",
-		Default:   "inital",
-		AllowEdit: false,
+		Label: "Commit Message",
 	}
 	msg, err := message.Run()
 	if err != nil {
