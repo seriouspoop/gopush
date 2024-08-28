@@ -133,7 +133,7 @@ func generateCommitMsg() (string, error) {
 
 	promptTemplate := &promptui.PromptTemplates{
 		Valid:   "{{ . }}: ",
-		Success: "{{ . | green }} {{ . | faint}}{{ `:` | faint}}",
+		Success: "{{ `✔` | green }} {{ . | faint}}{{ `:` | faint}}",
 	}
 
 	message := promptui.Prompt{
