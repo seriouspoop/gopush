@@ -132,7 +132,7 @@ func generateCommitMsg() (string, error) {
 	}
 
 	promptTemplate := &promptui.PromptTemplates{
-		Valid: "{{ . }}",
+		Valid: "{{ . }}: ",
 		// Success: "{{ }}",
 	}
 
