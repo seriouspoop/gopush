@@ -131,14 +131,8 @@ func generateCommitMsg() (string, error) {
 		commitType = shortner[commitType]
 	}
 
-	promptTemplate := &promptui.PromptTemplates{
-		Valid:   "{{ . }}: ",
-		Success: "{{ . | faint }}: {{ . | faint}}",
-	}
-
 	message := promptui.Prompt{
-		Label:     "Commit Message",
-		Templates: promptTemplate,
+		Label: "Commit Message",
 	}
 	msg, err := message.Run()
 	if err != nil {
