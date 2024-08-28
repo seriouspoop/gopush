@@ -9,6 +9,7 @@ import (
 // terminal colors
 var green = color.New(color.FgGreen).SprintFunc()
 var red = color.New(color.FgRed).SprintFunc()
+var faint = color.New(color.Faint).SprintFunc()
 
 type status int
 
@@ -24,6 +25,10 @@ func Logger(s status, log string) {
 		STATUS_INFO:    "",
 		STATUS_SUCCESS: green("\U00002714 "),
 		STATUS_FAILURE: red("\U00002717 "),
+	}
+
+	if s != STATUS_INFO {
+		log = faint(log)
 	}
 
 	fmt.Printf("%s%s\n", statusToUnicode[s], log)
