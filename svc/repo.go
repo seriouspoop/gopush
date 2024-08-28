@@ -6,6 +6,7 @@ import (
 
 	"github.com/manifoldco/promptui"
 	"github.com/seriouspoop/gopush/model"
+	"github.com/seriouspoop/gopush/utils"
 )
 
 func (s *Svc) LoadProject() error {
@@ -31,7 +32,8 @@ func (s *Svc) InitializeRepo() error {
 	if err != nil {
 		return err
 	}
-	fmt.Println("✅ Repository initialized.")
+
+	utils.Logger(utils.STATUS_SUCCESS, "Repository initialized")
 	return nil
 }
 
@@ -55,7 +57,7 @@ func (s *Svc) InitializeRemote() error {
 	if err != nil {
 		return err
 	}
-	fmt.Println("✅ Remote added.")
+	fmt.Println("\U00002714 Remote added.")
 	return nil
 }
 
@@ -154,7 +156,7 @@ func (s *Svc) StageChanges() error {
 		if err != nil {
 			return err
 		}
-		fmt.Println("✅ Files added.")
+		utils.Logger(utils.STATUS_SUCCESS, "Files added")
 	}
 	return nil
 }
@@ -187,6 +189,6 @@ func (s *Svc) Push(setUpstreamBranch bool) (output string, err error) {
 			return "", err
 		}
 	}
-	fmt.Println("✅ Push Successful.")
+	utils.Logger(utils.STATUS_SUCCESS, "Push Successful")
 	return
 }

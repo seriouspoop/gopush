@@ -7,6 +7,7 @@ import (
 	"github.com/MakeNowJust/heredoc/v2"
 	"github.com/seriouspoop/gopush/model"
 	"github.com/seriouspoop/gopush/svc"
+	"github.com/seriouspoop/gopush/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -59,7 +60,7 @@ func Run(s servicer) *cobra.Command {
 				return err
 			}
 
-			fmt.Println("Pulling remote changes...")
+			utils.Logger(utils.STATUS_INFO, "Pulling remote changes...")
 			err = s.Pull(false)
 			if err != nil {
 				if errors.Is(err, svc.ErrAuthNotFound) {
@@ -70,7 +71,7 @@ func Run(s servicer) *cobra.Command {
 				}
 				return err
 			}
-			fmt.Println("✅ changes fetched.")
+			utils.Logger(utils.STATUS_SUCCESS, "changes fetched")
 			return nil
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
