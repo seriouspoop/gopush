@@ -7,6 +7,7 @@ import (
 
 	"github.com/seriouspoop/gopush/config"
 	"github.com/seriouspoop/gopush/model"
+	"github.com/seriouspoop/gopush/utils"
 )
 
 const (
@@ -48,7 +49,7 @@ func (s *Svc) SetUserPreference() error {
 	if err != nil {
 		return err
 	}
-	fmt.Println("Gathering default setting...")
+	utils.Logger(utils.LOG_INFO, "Gathering default settings...")
 	if cfg.DefaultRemote == "" {
 		fmt.Print("-  Remote (default=origin): ")
 		remoteName, err := s.r.ReadString('\n')

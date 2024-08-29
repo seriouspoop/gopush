@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/fatih/color"
 )
@@ -28,6 +29,8 @@ func Logger(s log, msg string) {
 	}
 
 	if s != LOG_INFO {
+		msg = strings.ToLower(msg)             // convert to lowercase
+		msg = strings.ReplaceAll(msg, ".", "") // remove punctuation
 		msg = faint(msg)
 	}
 
