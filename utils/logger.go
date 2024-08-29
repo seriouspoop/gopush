@@ -24,7 +24,7 @@ func Logger(s log, msg string) {
 	statusToUnicode := map[log]string{
 		LOG_INFO:    "",
 		LOG_SUCCESS: green("\U00002714 "),
-		LOG_FAILURE: red("\U00002717 "),
+		LOG_FAILURE: red("\U00002718 "),
 	}
 
 	if s != LOG_INFO {
