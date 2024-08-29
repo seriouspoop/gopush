@@ -11,25 +11,25 @@ var green = color.New(color.FgGreen).SprintFunc()
 var red = color.New(color.FgRed).SprintFunc()
 var faint = color.New(color.Faint).SprintFunc()
 
-type status int
+type log int
 
 const (
-	STATUS_UNKNOWN status = iota
-	STATUS_INFO
-	STATUS_SUCCESS
-	STATUS_FAILURE
+	LOG_UNKNOWN log = iota
+	LOG_INFO
+	LOG_SUCCESS
+	LOG_FAILURE
 )
 
-func Logger(s status, log string) {
-	statusToUnicode := map[status]string{
-		STATUS_INFO:    "",
-		STATUS_SUCCESS: green("\U00002714 "),
-		STATUS_FAILURE: red("\U00002717 "),
+func Logger(s log, msg string) {
+	statusToUnicode := map[log]string{
+		LOG_INFO:    "",
+		LOG_SUCCESS: green("\U00002714 "),
+		LOG_FAILURE: red("\U00002717 "),
 	}
 
-	if s != STATUS_INFO {
-		log = faint(log)
+	if s != LOG_INFO {
+		msg = faint(msg)
 	}
 
-	fmt.Printf("%s%s\n", statusToUnicode[s], log)
+	fmt.Printf("%s%s\n", statusToUnicode[s], msg)
 }

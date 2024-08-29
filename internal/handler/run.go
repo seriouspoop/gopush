@@ -60,7 +60,7 @@ func Run(s servicer) *cobra.Command {
 				return err
 			}
 
-			utils.Logger(utils.STATUS_INFO, "Pulling remote changes...")
+			utils.Logger(utils.LOG_INFO, "Pulling remote changes...")
 			err = s.Pull(false)
 			if err != nil {
 				if errors.Is(err, svc.ErrAuthNotFound) {
@@ -71,7 +71,7 @@ func Run(s servicer) *cobra.Command {
 				}
 				return err
 			}
-			utils.Logger(utils.STATUS_SUCCESS, "changes fetched")
+			utils.Logger(utils.LOG_SUCCESS, "changes fetched")
 			return nil
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -91,16 +91,17 @@ func Run(s servicer) *cobra.Command {
 			}
 
 			// Generate Tests and Run
+			utils.Logger(utils.LOG_INFO, "Generating and Running tests...")
 			testValid, err := s.CheckTestsAndRun()
 			if err != nil {
 				return err
 			}
 			if testValid {
-				utils.Logger(utils.STATUS_SUCCESS, "All tests passed")
+				utils.Logger(utils.LOG_SUCCESS, "tests passed")
 			} else {
-				utils.Logger(utils.STATUS_FAILURE, "No tests found")
+				utils.Logger(utils.LOG_FAILURE, "no tests found")
 			}
-			utils.Logger(utils.STATUS_INFO, "Staging changes...")
+			utils.Logger(utils.LOG_INFO, "Staging changes...")
 
 			// stage changes
 			err = s.StageChanges()
@@ -111,7 +112,7 @@ func Run(s servicer) *cobra.Command {
 			//TODO -> pull and merge from main
 
 			// Push changes
-			utils.Logger(utils.STATUS_INFO, "Pushing changes...")
+			utils.Logger(utils.LOG_INFO, "Pushing changes...")
 			output, err := s.Push(setUpstreamBranch)
 			if err != nil {
 				if output != "" {
@@ -120,7 +121,7 @@ func Run(s servicer) *cobra.Command {
 				if errors.Is(err, svc.ErrAuthNotFound) {
 					fmt.Println(heredoc.Doc(`
 					Auth credentials for current remote are missing.
-					Run "gopush init" first to setup auth credentials.
+					Run "gopush init" to setup auth credentials.
 					`))
 				}
 				return err

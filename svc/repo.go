@@ -33,7 +33,7 @@ func (s *Svc) InitializeRepo() error {
 		return err
 	}
 
-	utils.Logger(utils.STATUS_SUCCESS, "Repository initialized")
+	utils.Logger(utils.LOG_SUCCESS, "repository initialized")
 	return nil
 }
 
@@ -162,7 +162,7 @@ func (s *Svc) StageChanges() error {
 		if err != nil {
 			return err
 		}
-		utils.Logger(utils.STATUS_SUCCESS, "Files added")
+		utils.Logger(utils.LOG_SUCCESS, "files added")
 	}
 	return nil
 }
@@ -195,6 +195,6 @@ func (s *Svc) Push(setUpstreamBranch bool) (output string, err error) {
 			return "", err
 		}
 	}
-	utils.Logger(utils.STATUS_SUCCESS, "Push Successful")
+	utils.Logger(utils.LOG_SUCCESS, "push successful")
 	return
 }
