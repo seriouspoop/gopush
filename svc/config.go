@@ -51,8 +51,7 @@ func (s *Svc) SetUserPreference() error {
 	}
 	utils.Logger(utils.LOG_INFO, "Gathering default settings...")
 	if cfg.DefaultRemote == "" {
-		fmt.Print("-  Remote (default=origin): ")
-		remoteName, err := s.r.ReadString('\n')
+		remoteName, err := utils.Prompt("remote (default=origin)")
 		if err != nil {
 			return err
 		}
@@ -63,8 +62,7 @@ func (s *Svc) SetUserPreference() error {
 		cfg.DefaultRemote = remoteName
 	}
 	if cfg.BranchPrefix == "" {
-		fmt.Print(`-  Branch Prefix (default=empty): `)
-		branchPrefix, err := s.r.ReadString('\n')
+		branchPrefix, err := utils.Prompt("branch prefix (default=empty)")
 		if err != nil {
 			return err
 		}
@@ -122,17 +120,17 @@ func (s *Svc) SetRemoteAuth() error {
 
 func (s *Svc) authInput(provider string) (string, string, error) {
 	var username, token string
-	fmt.Printf("-  %s Username: ", provider)
-	username, err := s.r.ReadString('\n')
+	username, err := utils.Prompt("%s username", provider)
 	if err != nil {
 		return "", "", err
 	}
 	username = strings.TrimSpace(username)
-	fmt.Printf("-  %s Token: ", provider)
-	token, err = s.r.ReadString('\n')
+
+	token, err = utils.Prompt("%s token", provider)
 	if err != nil {
 		return "", "", err
 	}
 	token = strings.TrimSpace(token)
+
 	return username, token, nil
 }
