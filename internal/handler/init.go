@@ -78,7 +78,6 @@ func Init(s servicer) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			utils.Logger(utils.LOG_SUCCESS, "files added")
 
 			utils.Logger(utils.LOG_INFO, "Pulling commits from main...")
 			err = s.Pull(true)
