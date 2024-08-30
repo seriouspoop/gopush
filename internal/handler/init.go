@@ -6,11 +6,13 @@ import (
 
 	"github.com/MakeNowJust/heredoc/v2"
 	"github.com/seriouspoop/gopush/svc"
+	"github.com/seriouspoop/gopush/utils"
 	"github.com/spf13/cobra"
 )
 
 func Init(s servicer) *cobra.Command {
-	var verbose bool
+	// TODO -> verbose implementation
+	// var verbose bool
 	initCmd := &cobra.Command{
 		Use:   "init",
 		Short: "initializes git repo with all the config setting",
@@ -33,7 +35,7 @@ func Init(s servicer) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			//TODO - migrate to svc methods
+
 			err = s.LoadProject()
 			if err != nil {
 				if errors.Is(err, svc.ErrRepoNotFound) {
@@ -41,6 +43,7 @@ func Init(s servicer) *cobra.Command {
 					if err != nil {
 						return err
 					}
+					utils.Logger(utils.LOG_SUCCESS, "repository initialized")
 				}
 
 				// load config for add remote
@@ -53,35 +56,40 @@ func Init(s servicer) *cobra.Command {
 				if err != nil {
 					return err
 				}
+				utils.Logger(utils.LOG_SUCCESS, "remote initialized")
 			}
-			fmt.Println("✅ Repository and Remote initialized.")
+
+			utils.Logger(utils.LOG_INFO, "Generating config file...")
 			err = s.SetRemoteAuth()
 			if err != nil {
 				return err
 			}
-			fmt.Println("✅ config file generated.")
+			utils.Logger(utils.LOG_SUCCESS, "authorization set")
 
 			err = s.LoadConfig()
 			if err != nil {
 				return err
 			}
+			utils.Logger(utils.LOG_SUCCESS, "config file generated")
 
 			// staging current files
+			utils.Logger(utils.LOG_INFO, "Staging changes...")
 			err = s.StageChanges()
 			if err != nil {
 				return err
 			}
-			fmt.Println("✅ changes staged.")
-			fmt.Println("Pulling commits from main...")
+			utils.Logger(utils.LOG_SUCCESS, "files added")
+
+			utils.Logger(utils.LOG_INFO, "Pulling commits from main...")
 			err = s.Pull(true)
 			if err != nil {
 				if errors.Is(err, svc.ErrPullFailed) {
-					fmt.Println("Remote pull failed, try pulling manually.")
+					utils.Logger(utils.LOG_INFO, "Remote pull failed, try pulling manually.")
 				}
 				return err
 			}
+			utils.Logger(utils.LOG_SUCCESS, "pulled changes")
 			fmt.Println(heredoc.Doc(`
-				✅ Pulled remote changes
 
 				Now you will be able to use "gopush run" command for you workflow.
 				See "gopush run --help" for more details.`))
@@ -89,7 +97,7 @@ func Init(s servicer) *cobra.Command {
 		},
 	}
 
-	initCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "detailed output for each step")
+	// initCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "detailed output for each step")
 
 	return initCmd
 }

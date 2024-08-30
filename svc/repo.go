@@ -27,7 +27,7 @@ func (s *Svc) LoadProject() error {
 }
 
 func (s *Svc) InitializeRepo() error {
-	fmt.Println("Initializing repository...")
+	utils.Logger(utils.LOG_INFO, "Initializing repository...")
 	err := s.git.CreateRepo()
 	if err != nil {
 		return err
@@ -42,12 +42,13 @@ func (s *Svc) InitializeRemote() error {
 		return ErrConfigNotLoaded
 	}
 	var remoteURL string
-	fmt.Println("Adding remote...")
-	fmt.Print("-  Enter Remote URL: ")
-	remoteURL, err := s.r.ReadString('\n')
+	utils.Logger(utils.LOG_INFO, "Adding remote...")
+
+	remoteURL, err := utils.Prompt("remote url")
 	if err != nil {
 		return err
 	}
+
 	remoteURL = strings.TrimSpace(remoteURL)
 	remote := &model.Remote{
 		Name: s.cfg.DefaultRemote,
@@ -57,7 +58,8 @@ func (s *Svc) InitializeRemote() error {
 	if err != nil {
 		return err
 	}
-	fmt.Println("\U00002714 Remote added.")
+
+	utils.Logger(utils.LOG_SUCCESS, "remote added")
 	return nil
 }
 
@@ -131,16 +133,7 @@ func generateCommitMsg() (string, error) {
 		commitType = shortner[commitType]
 	}
 
-	promptTemplate := &promptui.PromptTemplates{
-		Valid:   "{{ . }}: ",
-		Success: "{{ `\U00002714` | green }} {{ . | faint}}{{ `:` | faint}} ",
-	}
-
-	message := promptui.Prompt{
-		Label:     "Commit Message",
-		Templates: promptTemplate,
-	}
-	msg, err := message.Run()
+	msg, err := utils.Prompt("commit message")
 	if err != nil {
 		return "", err
 	}

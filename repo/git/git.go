@@ -218,10 +218,10 @@ func (g *Git) Push(remote *model.Remote, branch model.Branch, authType model.Aut
 			Password: auth.Token,
 		}
 	} else if authType == model.AuthSSH {
-		Auth = &ssh.Password{
-			User:     auth.Username,
-			Password: auth.Token,
-		}
+		// Auth = &ssh.Password{
+		// 	User:     auth.Username,
+		// 	Password: "vmc.Singh@2004",
+		// }
 	} else {
 		return g.err.InvalidAuthMethod
 	}
