@@ -130,11 +130,13 @@ func (g *Git) Pull(remote *model.Remote, branch model.Branch, authType model.Aut
 			Password: auth.Token,
 		}
 	} else if authType == model.AuthSSH {
-		Auth = &ssh.Password{
-			User:     auth.Username,
-			Password: auth.Token,
+		sshPath := os.Getenv("HOME") + "/.ssh/yn_work"
+		sshKey, _ := os.ReadFile(sshPath)
+		publicKey, err := ssh.NewPublicKeys("git", sshKey, "vmc.Singh@2004")
+		if err != nil {
+			return err
 		}
-		// ssh.N
+		Auth = publicKey
 	} else {
 		return g.err.InvalidAuthMethod
 	}
@@ -218,10 +220,13 @@ func (g *Git) Push(remote *model.Remote, branch model.Branch, authType model.Aut
 			Password: auth.Token,
 		}
 	} else if authType == model.AuthSSH {
-		// Auth = &ssh.Password{
-		// 	User:     auth.Username,
-		// 	Password: "vmc.Singh@2004",
-		// }
+		sshPath := os.Getenv("HOME") + "/.ssh/yn_work"
+		sshKey, _ := os.ReadFile(sshPath)
+		publicKey, err := ssh.NewPublicKeys("git", sshKey, "vmc.Singh@2004")
+		if err != nil {
+			return err
+		}
+		Auth = publicKey
 	} else {
 		return g.err.InvalidAuthMethod
 	}
