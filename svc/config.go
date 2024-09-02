@@ -50,7 +50,7 @@ func (s *Svc) SetUserPreference() error {
 	}
 	utils.Logger(utils.LOG_INFO, "Gathering default settings...")
 	if cfg.DefaultRemote == "" {
-		remoteName, err := utils.Prompt("remote (default=origin)", false)
+		remoteName, err := utils.Prompt(false, "remote (default=origin)")
 		if err != nil {
 			return err
 		}
@@ -61,7 +61,7 @@ func (s *Svc) SetUserPreference() error {
 		cfg.DefaultRemote = remoteName
 	}
 	if cfg.BranchPrefix == "" {
-		branchPrefix, err := utils.Prompt("branch prefix (default=empty)", false)
+		branchPrefix, err := utils.Prompt(false, "branch prefix (default=empty)")
 		if err != nil {
 			return err
 		}
@@ -93,42 +93,51 @@ func (s *Svc) SetRemoteAuth() error {
 		return err
 	}
 
-	utils.Logger(utils.LOG_INFO, "Gathering auth details...")
-	provider := remoteDetails.Provider()
-	if cfg.ProviderAuth(provider) == nil {
-		utils.Logger(utils.LOG_FAILURE, "auth credentials not found")
-		username, token, err := s.authInput(provider.String())
-		if err != nil {
-			return err
+	if remoteDetails.AuthMode() == model.AuthHTTP {
+		utils.Logger(utils.LOG_INFO, "Gathering auth details...")
+		provider := remoteDetails.Provider()
+		if cfg.ProviderAuth(provider) == nil {
+			utils.Logger(utils.LOG_FAILURE, "auth credentials not found")
+			username, token, err := s.authInput(provider.String())
+			if err != nil {
+				return err
+			}
+			cred := &config.Credentials{
+				Username: username,
+				Token:    token,
+			}
+			switch provider {
+			case model.ProviderGITHUB:
+				cfg.Auth.GitHub = cred
+			case model.ProviderBITBUCKET:
+				cfg.Auth.BitBucket = cred
+			case model.ProviderGITLAB:
+				cfg.Auth.GitLab = cred
+			}
+			utils.Logger(utils.LOG_SUCCESS, "auth generated")
+		} else {
+			utils.Logger(utils.LOG_SUCCESS, "auth found")
 		}
-		cred := &config.Credentials{
-			Username: username,
-			Token:    token,
-		}
-		switch provider {
-		case model.ProviderGITHUB:
-			cfg.Auth.GitHub = cred
-		case model.ProviderBITBUCKET:
-			cfg.Auth.BitBucket = cred
-		case model.ProviderGITLAB:
-			cfg.Auth.GitLab = cred
-		}
-		utils.Logger(utils.LOG_SUCCESS, "auth generated")
+	} else if remoteDetails.AuthMode() == model.AuthSSH {
+		/*
+			TODO - 1. check if gopush key present?
+			TODO - 2. generate "gopush" public/private key pair else
+		*/
 	} else {
-		utils.Logger(utils.LOG_SUCCESS, "auth found")
+		return ErrInvalidAuthMethod
 	}
 	return cfg.Write(configFile, userDir)
 }
 
 func (s *Svc) authInput(provider string) (string, string, error) {
 	var username, token string
-	username, err := utils.Prompt("%s username", false, provider)
+	username, err := utils.Prompt(false, "%s username", provider)
 	if err != nil {
 		return "", "", err
 	}
 	username = strings.TrimSpace(username)
 
-	token, err = utils.Prompt("%s token", true, provider)
+	token, err = utils.Prompt(true, "%s token", provider)
 	if err != nil {
 		return "", "", err
 	}

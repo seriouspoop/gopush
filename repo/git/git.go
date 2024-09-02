@@ -130,9 +130,9 @@ func (g *Git) Pull(remote *model.Remote, branch model.Branch, authType model.Aut
 			Password: auth.Token,
 		}
 	} else if authType == model.AuthSSH {
-		sshPath := os.Getenv("HOME") + "/.ssh/yn_work"
+		sshPath := os.Getenv("HOME") + "/.ssh/gopush"
 		sshKey, _ := os.ReadFile(sshPath)
-		publicKey, err := ssh.NewPublicKeys("git", sshKey, "vmc.Singh@2004")
+		publicKey, err := ssh.NewPublicKeys("git", sshKey, auth.Token)
 		if err != nil {
 			return err
 		}
@@ -213,6 +213,9 @@ func (g *Git) AddThenCommit(commitMsg string) error {
 }
 
 func (g *Git) Push(remote *model.Remote, branch model.Branch, authType model.AuthMode, auth *config.Credentials) error {
+	if auth == nil {
+		return g.err.AuthNotFound
+	}
 	var Auth transport.AuthMethod
 	if authType == model.AuthHTTP {
 		Auth = &http.BasicAuth{
@@ -220,9 +223,9 @@ func (g *Git) Push(remote *model.Remote, branch model.Branch, authType model.Aut
 			Password: auth.Token,
 		}
 	} else if authType == model.AuthSSH {
-		sshPath := os.Getenv("HOME") + "/.ssh/yn_work"
+		sshPath := os.Getenv("HOME") + "/.ssh/gopush"
 		sshKey, _ := os.ReadFile(sshPath)
-		publicKey, err := ssh.NewPublicKeys("git", sshKey, "vmc.Singh@2004")
+		publicKey, err := ssh.NewPublicKeys("git", sshKey, auth.Token)
 		if err != nil {
 			return err
 		}
