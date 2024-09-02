@@ -1,7 +1,6 @@
 package svc
 
 import (
-	"fmt"
 	"os"
 	"strings"
 
@@ -51,7 +50,7 @@ func (s *Svc) SetUserPreference() error {
 	}
 	utils.Logger(utils.LOG_INFO, "Gathering default settings...")
 	if cfg.DefaultRemote == "" {
-		remoteName, err := utils.Prompt("remote (default=origin)")
+		remoteName, err := utils.Prompt("remote (default=origin)", false)
 		if err != nil {
 			return err
 		}
@@ -62,7 +61,7 @@ func (s *Svc) SetUserPreference() error {
 		cfg.DefaultRemote = remoteName
 	}
 	if cfg.BranchPrefix == "" {
-		branchPrefix, err := utils.Prompt("branch prefix (default=empty)")
+		branchPrefix, err := utils.Prompt("branch prefix (default=empty)", false)
 		if err != nil {
 			return err
 		}
@@ -94,10 +93,10 @@ func (s *Svc) SetRemoteAuth() error {
 		return err
 	}
 
+	utils.Logger(utils.LOG_INFO, "Gathering auth details...")
 	provider := remoteDetails.Provider()
 	if cfg.ProviderAuth(provider) == nil {
-		fmt.Println("\nAuth credentials not found.")
-		fmt.Println("Gathering auth details...")
+		utils.Logger(utils.LOG_FAILURE, "auth credentials not found")
 		username, token, err := s.authInput(provider.String())
 		if err != nil {
 			return err
@@ -114,19 +113,22 @@ func (s *Svc) SetRemoteAuth() error {
 		case model.ProviderGITLAB:
 			cfg.Auth.GitLab = cred
 		}
+		utils.Logger(utils.LOG_SUCCESS, "auth generated")
+	} else {
+		utils.Logger(utils.LOG_SUCCESS, "auth found")
 	}
 	return cfg.Write(configFile, userDir)
 }
 
 func (s *Svc) authInput(provider string) (string, string, error) {
 	var username, token string
-	username, err := utils.Prompt("%s username", provider)
+	username, err := utils.Prompt("%s username", false, provider)
 	if err != nil {
 		return "", "", err
 	}
 	username = strings.TrimSpace(username)
 
-	token, err = utils.Prompt("%s token", provider)
+	token, err = utils.Prompt("%s token", true, provider)
 	if err != nil {
 		return "", "", err
 	}

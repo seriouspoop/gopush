@@ -44,7 +44,7 @@ func (s *Svc) InitializeRemote() error {
 	var remoteURL string
 	utils.Logger(utils.LOG_INFO, "Adding remote...")
 
-	remoteURL, err := utils.Prompt("remote url")
+	remoteURL, err := utils.Prompt("remote url", false)
 	if err != nil {
 		return err
 	}
@@ -133,7 +133,7 @@ func generateCommitMsg() (string, error) {
 		commitType = shortner[commitType]
 	}
 
-	msg, err := utils.Prompt("commit message")
+	msg, err := utils.Prompt("commit message", false)
 	if err != nil {
 		return "", err
 	}
