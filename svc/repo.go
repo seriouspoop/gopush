@@ -3,6 +3,8 @@ package svc
 import (
 	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/seriouspoop/gopush/config"
@@ -113,6 +115,10 @@ func (s *Svc) Pull(initial bool) error {
 			Token: s.passphrase.String(),
 		}
 		pullErr = s.git.Pull(remote, pullBranch, providerAuth)
+	}
+	if errors.Is(pullErr, ErrKeyNotSupported) {
+		message := fmt.Sprintf("copy contents of %s.pub and upload the keys on %s", filepath.Join(os.Getenv("HOME"), gopushDir, keyName), remote.Provider().String())
+		utils.Logger(utils.LOG_STRICT_INFO, message)
 	}
 	return pullErr
 }
@@ -236,6 +242,10 @@ func (s *Svc) Push(setUpstreamBranch bool) (output string, err error) {
 			pushErr = s.git.Push(remoteDetails, currBranch, providerAuth)
 		}
 		if pushErr != nil {
+			if errors.Is(pushErr, ErrKeyNotSupported) {
+				message := fmt.Sprintf("copy contents of %s.pub and upload the keys on %s", filepath.Join(os.Getenv("HOME"), gopushDir, keyName), remoteDetails.Provider().String())
+				utils.Logger(utils.LOG_STRICT_INFO, message)
+			}
 			return "", pushErr
 		}
 		utils.Logger(utils.LOG_SUCCESS, "push successful")

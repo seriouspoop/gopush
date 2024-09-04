@@ -184,7 +184,6 @@ func (s *Svc) SetRemoteSSHAuth() error {
 			return err
 		}
 		utils.Logger(utils.LOG_SUCCESS, "keys generated")
-		message := fmt.Sprintf("copy contents of %s.pub and upload the keys on %s", filepath.Join(gopushDirPath, keyName), remoteDetails.Provider().String())
 		// add keys to known hosts
 		hostCode := fmt.Sprintf("Host %s\n  AddKeysToAgent yes\n  IdentityFile \"%s\"", remoteDetails.Provider().HostURL(), filepath.Join(gopushDirPath, keyName))
 		fileContent, err := os.ReadFile(filepath.Join(os.Getenv("HOME"), ".ssh", "config"))
@@ -200,6 +199,8 @@ func (s *Svc) SetRemoteSSHAuth() error {
 		if err != nil {
 			return err
 		}
+		utils.Logger(utils.LOG_SUCCESS, "key added to host")
+		message := fmt.Sprintf("copy contents of %s.pub and upload the keys on %s", filepath.Join(gopushDirPath, keyName), remoteDetails.Provider().String())
 		utils.Logger(utils.LOG_STRICT_INFO, message)
 		return ErrWaitExit
 	} else {
