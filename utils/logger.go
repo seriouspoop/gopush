@@ -33,11 +33,19 @@ func Logger(s log, msg string) {
 	if s == LOG_STRICT_INFO {
 		msg = ">> " + msg
 		msg = red(msg)
-	} else if s != LOG_INFO {
+	} else if s != LOG_INFO && s != LOG_STRICT_INFO {
 		msg = strings.ToLower(msg)             // convert to lowercase
 		msg = strings.ReplaceAll(msg, ".", "") // remove punctuation
 		msg = faint(msg)
 	}
 
 	fmt.Printf("%s%s\n", statusToUnicode[s], msg)
+}
+
+func Faint(s string) string {
+	return faint(s)
+}
+
+func ErrorSymbol() string {
+	return red("\U00002718")
 }

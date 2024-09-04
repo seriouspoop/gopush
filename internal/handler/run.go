@@ -41,7 +41,7 @@ func Run(s servicer) *cobra.Command {
 		},
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			cmd.SilenceUsage = true
-			cmd.SetErrPrefix("❌ Error:")
+			cmd.SetErrPrefix(fmt.Sprintf("%s Error:", utils.ErrorSymbol()))
 			// Load repo and remote
 			err := s.LoadProject()
 			if err != nil {
@@ -99,7 +99,7 @@ func Run(s servicer) *cobra.Command {
 			if testValid {
 				utils.Logger(utils.LOG_SUCCESS, "tests passed")
 			} else {
-				utils.Logger(utils.LOG_FAILURE, "no tests found")
+				utils.Logger(utils.LOG_SUCCESS, "no tests found")
 			}
 			utils.Logger(utils.LOG_INFO, "Staging changes...")
 

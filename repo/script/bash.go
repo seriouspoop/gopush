@@ -62,7 +62,7 @@ func (b *Bash) TestsPresent() (bool, error) {
 func (b *Bash) RunTests() (string, error) {
 	cmd := exec.Command("go", "test", "./...")
 	output, err := cmd.CombinedOutput()
-	return string(output), err
+	return string(output[:len(output)-1]), err
 }
 
 // TODO -> shift this to git repo

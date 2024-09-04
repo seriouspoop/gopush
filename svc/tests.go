@@ -1,6 +1,8 @@
 package svc
 
-import "fmt"
+import (
+	"github.com/seriouspoop/gopush/utils"
+)
 
 func (s *Svc) CheckTestsAndRun() (bool, error) {
 	present, err := s.bash.TestsPresent()
@@ -8,13 +10,13 @@ func (s *Svc) CheckTestsAndRun() (bool, error) {
 		return false, err
 	}
 	if present {
-		output, _ := s.bash.GenerateMocks()
-		fmt.Print(output)
+		s.bash.GenerateMocks()
 		output, err := s.bash.RunTests()
-		fmt.Print(output)
 		if err != nil {
-			return true, ErrTestsFailed
+			utils.Logger(utils.LOG_INFO, utils.Faint(output))
+			return false, ErrTestsFailed
 		}
+		return true, nil
 	}
 	return false, nil
 }

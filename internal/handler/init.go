@@ -28,7 +28,7 @@ func Init(s servicer) *cobra.Command {
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.SilenceUsage = true
-			cmd.SetErrPrefix("❌ Error:")
+			cmd.SetErrPrefix(fmt.Sprintf("%s Error:", utils.ErrorSymbol()))
 
 			// Generate /.gopush/gopush_config.toml
 			err := s.SetUserPreference()
