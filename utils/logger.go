@@ -31,9 +31,8 @@ func Logger(s log, msg string) {
 	}
 
 	if s == LOG_STRICT_INFO {
-		msg = strings.ToUpper(msg)
 		msg = ">> " + msg
-		msg = green(msg)
+		msg = red(msg)
 	} else if s != LOG_INFO {
 		msg = strings.ToLower(msg)             // convert to lowercase
 		msg = strings.ReplaceAll(msg, ".", "") // remove punctuation

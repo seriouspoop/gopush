@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/go-git/go-git/v5"
 	gitCfg "github.com/go-git/go-git/v5/config"
@@ -15,6 +17,11 @@ import (
 	"github.com/seriouspoop/gopush/model"
 )
 
+const (
+	gopushDir = ".gopush"
+	keyName   = "gopush_key"
+)
+
 type Errors struct {
 	RemoteNotFound      error
 	RemoteNotLoaded     error
@@ -24,6 +31,7 @@ type Errors struct {
 	PullFailed          error
 	AuthNotFound        error
 	InvalidAuthMethod   error
+	InvalidPassphrase   error
 }
 
 type Git struct {
@@ -115,7 +123,7 @@ func (g *Git) AddRemote(remote *model.Remote) error {
 	return err
 }
 
-func (g *Git) Pull(remote *model.Remote, branch model.Branch, authType model.AuthMode, auth *config.Credentials) error {
+func (g *Git) Pull(remote *model.Remote, branch model.Branch, auth *config.Credentials) error {
 	if auth == nil {
 		return g.err.AuthNotFound
 	}
@@ -124,16 +132,19 @@ func (g *Git) Pull(remote *model.Remote, branch model.Branch, authType model.Aut
 		return err
 	}
 	var Auth transport.AuthMethod
-	if authType == model.AuthHTTP {
+	if remote.AuthMode() == model.AuthHTTP {
 		Auth = &http.BasicAuth{
 			Username: auth.Username,
 			Password: auth.Token,
 		}
-	} else if authType == model.AuthSSH {
-		sshPath := os.Getenv("HOME") + "/.ssh/gopush"
+	} else if remote.AuthMode() == model.AuthSSH {
+		sshPath := filepath.Join(os.Getenv("HOME"), gopushDir, keyName)
 		sshKey, _ := os.ReadFile(sshPath)
 		publicKey, err := ssh.NewPublicKeys("git", sshKey, auth.Token)
 		if err != nil {
+			if strings.Contains(err.Error(), "decryption password incorrect") {
+				return g.err.InvalidPassphrase
+			}
 			return err
 		}
 		Auth = publicKey
@@ -149,6 +160,7 @@ func (g *Git) Pull(remote *model.Remote, branch model.Branch, authType model.Aut
 		Progress:      os.Stdout,
 		Force:         false,
 	})
+
 	if errors.Is(err, git.ErrNonFastForwardUpdate) {
 		return g.err.PullFailed
 	} else if errors.Is(err, git.NoErrAlreadyUpToDate) {
@@ -212,18 +224,18 @@ func (g *Git) AddThenCommit(commitMsg string) error {
 	return err
 }
 
-func (g *Git) Push(remote *model.Remote, branch model.Branch, authType model.AuthMode, auth *config.Credentials) error {
+func (g *Git) Push(remote *model.Remote, branch model.Branch, auth *config.Credentials) error {
 	if auth == nil {
 		return g.err.AuthNotFound
 	}
 	var Auth transport.AuthMethod
-	if authType == model.AuthHTTP {
+	if remote.AuthMode() == model.AuthHTTP {
 		Auth = &http.BasicAuth{
 			Username: auth.Username,
 			Password: auth.Token,
 		}
-	} else if authType == model.AuthSSH {
-		sshPath := os.Getenv("HOME") + "/.ssh/gopush"
+	} else if remote.AuthMode() == model.AuthSSH {
+		sshPath := filepath.Join(os.Getenv("HOME"), gopushDir, keyName)
 		sshKey, _ := os.ReadFile(sshPath)
 		publicKey, err := ssh.NewPublicKeys("git", sshKey, auth.Token)
 		if err != nil {

@@ -1,10 +1,12 @@
 package svc
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
 	"github.com/manifoldco/promptui"
+	"github.com/seriouspoop/gopush/config"
 	"github.com/seriouspoop/gopush/model"
 	"github.com/seriouspoop/gopush/utils"
 )
@@ -77,14 +79,39 @@ func (s *Svc) Pull(initial bool) error {
 		fmt.Println(output)
 		return err
 	}
-	if s.cfg == nil {
-		return ErrConfigNotLoaded
+
+	var providerAuth *config.Credentials
+	if remote.AuthMode() == model.AuthHTTP {
+		if s.cfg == nil {
+			return ErrConfigNotLoaded
+		}
+		providerAuth = s.cfg.ProviderAuth(remote.Provider())
+		if providerAuth == nil {
+			return ErrAuthNotFound
+		}
+	} else if remote.AuthMode() == model.AuthSSH {
+		passphrase, err := utils.Prompt(true, false, "passphrase")
+		if err != nil {
+			return err
+		}
+		providerAuth = &config.Credentials{
+			Token: passphrase,
+		}
+	} else {
+		return ErrInvalidAuthMethod
 	}
-	providerAuth := s.cfg.ProviderAuth(remote.Provider())
-	if providerAuth == nil {
-		return ErrAuthNotFound
+	pullErr := s.git.Pull(remote, pullBranch, providerAuth)
+	for errors.Is(pullErr, ErrInvalidPassphrase) {
+		passphrase, err := utils.Prompt(true, false, "passphrase again")
+		if err != nil {
+			return err
+		}
+		providerAuth = &config.Credentials{
+			Token: passphrase,
+		}
+		pullErr = s.git.Pull(remote, pullBranch, providerAuth)
 	}
-	return s.git.Pull(remote, pullBranch, remote.AuthMode(), providerAuth)
+	return pullErr
 }
 
 func (s *Svc) SwitchBranchIfExists(branch model.Branch) (bool, error) {
@@ -176,18 +203,42 @@ func (s *Svc) Push(setUpstreamBranch bool) (output string, err error) {
 		if err != nil {
 			return "", err
 		}
-		if s.cfg == nil {
-			return "", ErrConfigNotLoaded
+
+		var providerAuth *config.Credentials
+		if remoteDetails.AuthMode() == model.AuthHTTP {
+			if s.cfg == nil {
+				return "", ErrConfigNotLoaded
+			}
+			providerAuth := s.cfg.ProviderAuth(remoteDetails.Provider())
+			if providerAuth == nil {
+				return "", ErrAuthNotFound
+			}
+		} else if remoteDetails.AuthMode() == model.AuthSSH {
+			passphrase, err := utils.Prompt(true, false, "passphrase")
+			if err != nil {
+				return "", err
+			}
+			providerAuth = &config.Credentials{
+				Token: passphrase,
+			}
+		} else {
+			return "", ErrInvalidAuthMethod
 		}
-		providerAuth := s.cfg.ProviderAuth(remoteDetails.Provider())
-		if providerAuth == nil {
-			return "", ErrAuthNotFound
+		pushErr := s.git.Push(remoteDetails, currBranch, providerAuth)
+		for errors.Is(pushErr, ErrInvalidPassphrase) {
+			passphrase, err := utils.Prompt(true, false, "passphrase again")
+			if err != nil {
+				return "", err
+			}
+			providerAuth = &config.Credentials{
+				Token: passphrase,
+			}
+			pushErr = s.git.Push(remoteDetails, currBranch, providerAuth)
 		}
-		err = s.git.Push(remoteDetails, currBranch, remoteDetails.AuthMode(), providerAuth)
-		if err != nil {
-			return "", err
+		if pushErr != nil {
+			return "", pushErr
 		}
+		utils.Logger(utils.LOG_SUCCESS, "push successful")
 	}
-	utils.Logger(utils.LOG_SUCCESS, "push successful")
-	return
+	return "", err
 }

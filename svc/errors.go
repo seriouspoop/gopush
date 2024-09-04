@@ -17,4 +17,5 @@ var (
 	ErrAuthNotFound        = errors.New("auth credentials not found")
 	ErrInvalidAuthMethod   = errors.New("invalid auth method")
 	ErrWaitExit            = errors.New("waiting for user")
+	ErrInvalidPassphrase   = errors.New("invalid passphrase")
 )

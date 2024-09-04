@@ -25,6 +25,7 @@ func NewRoot() (*Root, error) {
 		PullFailed:          svc.ErrPullFailed,
 		AuthNotFound:        svc.ErrAuthNotFound,
 		InvalidAuthMethod:   svc.ErrInvalidAuthMethod,
+		InvalidPassphrase:   svc.ErrInvalidPassphrase,
 	})
 	if err != nil {
 		return nil, err
