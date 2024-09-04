@@ -262,7 +262,9 @@ func (g *Git) Push(remote *model.Remote, branch model.Branch, auth *config.Crede
 		Auth:  Auth,
 	})
 
-	if errors.Is(err, git.NoErrAlreadyUpToDate) {
+	if strings.Contains(err.Error(), "unable to authenticate") {
+		return g.err.KeyNotSupported
+	} else if errors.Is(err, git.NoErrAlreadyUpToDate) {
 		return nil
 	}
 	return err
