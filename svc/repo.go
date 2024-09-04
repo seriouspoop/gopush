@@ -206,12 +206,16 @@ func (s *Svc) Push(setUpstreamBranch bool) (output string, err error) {
 			return "", err
 		}
 
+		if remoteDetails == nil {
+			return "", ErrRemoteNotFound
+		}
+
 		var providerAuth *config.Credentials
 		if remoteDetails.AuthMode() == model.AuthHTTP {
 			if s.cfg == nil {
 				return "", ErrConfigNotLoaded
 			}
-			providerAuth := s.cfg.ProviderAuth(remoteDetails.Provider())
+			providerAuth = s.cfg.ProviderAuth(remoteDetails.Provider())
 			if providerAuth == nil {
 				return "", ErrAuthNotFound
 			}
@@ -228,6 +232,10 @@ func (s *Svc) Push(setUpstreamBranch bool) (output string, err error) {
 			}
 		} else {
 			return "", ErrInvalidAuthMethod
+		}
+
+		if providerAuth == nil {
+			return "", ErrAuthLoadFailed
 		}
 		pushErr := s.git.Push(remoteDetails, currBranch, providerAuth)
 		for errors.Is(pushErr, ErrInvalidPassphrase) {

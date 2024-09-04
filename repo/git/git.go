@@ -230,6 +230,9 @@ func (g *Git) Push(remote *model.Remote, branch model.Branch, auth *config.Crede
 	if auth == nil {
 		return g.err.AuthNotFound
 	}
+	if remote == nil {
+		return g.err.RemoteNotLoaded
+	}
 	var Auth transport.AuthMethod
 	if remote.AuthMode() == model.AuthHTTP {
 		Auth = &http.BasicAuth{

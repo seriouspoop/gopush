@@ -19,4 +19,5 @@ var (
 	ErrWaitExit            = errors.New("waiting for user")
 	ErrInvalidPassphrase   = errors.New("invalid passphrase")
 	ErrKeyNotSupported     = errors.New("invalid key")
+	ErrAuthLoadFailed      = errors.New("failed to load auth")
 )
