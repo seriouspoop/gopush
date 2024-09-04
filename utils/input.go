@@ -40,3 +40,16 @@ func Prompt(password bool, allowEmpty bool, label string, opts ...interface{}) (
 	res, err = prompt.Run()
 	return
 }
+
+func Select(items []string) (res string, err error) {
+	selectTemplate := &promptui.SelectTemplates{
+		Active: "\U0001F892 {{ . | green }}",
+	}
+	prompt := promptui.Select{
+		Label:     "Select commit type",
+		Items:     items,
+		Templates: selectTemplate,
+	}
+	_, res, err = prompt.Run()
+	return
+}

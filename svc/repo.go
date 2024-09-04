@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/manifoldco/promptui"
 	"github.com/seriouspoop/gopush/config"
 	"github.com/seriouspoop/gopush/model"
 	"github.com/seriouspoop/gopush/utils"
@@ -142,15 +141,8 @@ func (s *Svc) CreateBranchAndSwitch(branch model.Branch) error {
 }
 
 func generateCommitMsg() (string, error) {
-	selecttTemplate := &promptui.SelectTemplates{
-		Active: "\U0001F892 {{ . | green }}",
-	}
-	prompt := promptui.Select{
-		Label:     "Select commit type",
-		Items:     []string{"fix", "feature", "chore", "refactor", "ci"},
-		Templates: selecttTemplate,
-	}
-	_, commitType, err := prompt.Run()
+	items := []string{"fix", "feature", "chore", "refactor", "ci"}
+	commitType, err := utils.Select(items)
 	if err != nil {
 		return "", err
 	}
