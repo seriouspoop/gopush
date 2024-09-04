@@ -71,26 +71,26 @@ func (s *Svc) Pull(initial bool) error {
 	if err != nil {
 		return err
 	}
-	remote, err := s.git.GetRemoteDetails()
+	remoteDetails, err := s.git.GetRemoteDetails()
 	if err != nil {
 		return err
 	}
 	if initial {
-		output, err := s.bash.PullBranch(remote.Name, pullBranch, true)
+		output, err := s.bash.PullBranch(remoteDetails.Name, pullBranch, true)
 		fmt.Println(output)
 		return err
 	}
 
 	var providerAuth *config.Credentials
-	if remote.AuthMode() == model.AuthHTTP {
+	if remoteDetails.AuthMode() == model.AuthHTTP {
 		if s.cfg == nil {
 			return ErrConfigNotLoaded
 		}
-		providerAuth = s.cfg.ProviderAuth(remote.Provider())
+		providerAuth = s.cfg.ProviderAuth(remoteDetails.Provider())
 		if providerAuth == nil {
 			return ErrAuthNotFound
 		}
-	} else if remote.AuthMode() == model.AuthSSH {
+	} else if remoteDetails.AuthMode() == model.AuthSSH {
 		if !s.passphrase.Valid() {
 			passphrase, err := utils.Prompt(true, false, "passphrase")
 			if err != nil {
@@ -104,7 +104,7 @@ func (s *Svc) Pull(initial bool) error {
 	} else {
 		return ErrInvalidAuthMethod
 	}
-	pullErr := s.git.Pull(remote, pullBranch, providerAuth)
+	pullErr := s.git.Pull(remoteDetails, pullBranch, providerAuth)
 	for errors.Is(pullErr, ErrInvalidPassphrase) {
 		passphrase, err := utils.Prompt(true, false, "invalid passphrase")
 		if err != nil {
@@ -114,10 +114,10 @@ func (s *Svc) Pull(initial bool) error {
 		providerAuth = &config.Credentials{
 			Token: s.passphrase.String(),
 		}
-		pullErr = s.git.Pull(remote, pullBranch, providerAuth)
+		pullErr = s.git.Pull(remoteDetails, pullBranch, providerAuth)
 	}
 	if errors.Is(pullErr, ErrKeyNotSupported) {
-		message := fmt.Sprintf("copy contents of %s.pub and upload the keys on %s", filepath.Join(os.Getenv("HOME"), gopushDir, keyName), remote.Provider().String())
+		message := fmt.Sprintf("copy contents of %s.pub and upload the keys on %s", filepath.Join(os.Getenv("HOME"), gopushDir, keyName), remoteDetails.Provider().String())
 		utils.Logger(utils.LOG_STRICT_INFO, message)
 	}
 	return pullErr
