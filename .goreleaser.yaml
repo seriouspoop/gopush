@@ -16,7 +16,7 @@ before:
 builds:
   - <<: &build_defaults
       binary: bin/gopush
-      main: .
+      main: cmd/main.go
     id: macos
     goos: [darwin]
     goarch: [amd64]
