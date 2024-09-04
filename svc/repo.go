@@ -120,6 +120,10 @@ func (s *Svc) Pull(initial bool) error {
 		message := fmt.Sprintf("copy contents of %s.pub and upload the keys on %s", filepath.Join(os.Getenv("HOME"), gopushDir, keyName), remoteDetails.Provider().String())
 		utils.Logger(utils.LOG_STRICT_INFO, message)
 	}
+	if errors.Is(pullErr, ErrAlreadyUpToDate) {
+		utils.Logger(utils.LOG_SUCCESS, "already up-to-date")
+		return nil
+	}
 	return pullErr
 }
 
@@ -191,41 +195,40 @@ func (s *Svc) StageChanges() error {
 	return nil
 }
 
-func (s *Svc) Push(setUpstreamBranch bool) (output string, err error) {
+func (s *Svc) Push(setUpstreamBranch bool) error {
 	currBranch, err := s.bash.GetCurrentBranch()
 	if err != nil {
-		return "", err
+		return err
 	}
 	if setUpstreamBranch {
-		output, err = s.bash.Push(currBranch, true)
+		_, err = s.bash.Push(currBranch, true)
 		if err != nil {
-			fmt.Println(output)
-			return "", err
+			return err
 		}
 	} else {
 		remoteDetails, err := s.git.GetRemoteDetails()
 		if err != nil {
-			return "", err
+			return err
 		}
 
 		if remoteDetails == nil {
-			return "", ErrRemoteNotFound
+			return ErrRemoteNotFound
 		}
 
 		var providerAuth *config.Credentials
 		if remoteDetails.AuthMode() == model.AuthHTTP {
 			if s.cfg == nil {
-				return "", ErrConfigNotLoaded
+				return ErrConfigNotLoaded
 			}
 			providerAuth = s.cfg.ProviderAuth(remoteDetails.Provider())
 			if providerAuth == nil {
-				return "", ErrAuthNotFound
+				return ErrAuthNotFound
 			}
 		} else if remoteDetails.AuthMode() == model.AuthSSH {
 			if !s.passphrase.Valid() {
 				passphrase, err := utils.Prompt(true, false, "passphrase")
 				if err != nil {
-					return "", err
+					return err
 				}
 				s.passphrase = model.Password(passphrase)
 			}
@@ -233,17 +236,17 @@ func (s *Svc) Push(setUpstreamBranch bool) (output string, err error) {
 				Token: s.passphrase.String(),
 			}
 		} else {
-			return "", ErrInvalidAuthMethod
+			return ErrInvalidAuthMethod
 		}
 
 		if providerAuth == nil {
-			return "", ErrAuthLoadFailed
+			return ErrAuthLoadFailed
 		}
 		pushErr := s.git.Push(remoteDetails, currBranch, providerAuth)
 		for errors.Is(pushErr, ErrInvalidPassphrase) {
 			passphrase, err := utils.Prompt(true, false, "invalid passphrase")
 			if err != nil {
-				return "", err
+				return err
 			}
 			s.passphrase = model.Password(passphrase)
 			providerAuth = &config.Credentials{
@@ -256,9 +259,13 @@ func (s *Svc) Push(setUpstreamBranch bool) (output string, err error) {
 				message := fmt.Sprintf("copy contents of %s.pub and upload the keys on %s", filepath.Join(os.Getenv("HOME"), gopushDir, keyName), remoteDetails.Provider().String())
 				utils.Logger(utils.LOG_STRICT_INFO, message)
 			}
-			return "", pushErr
+			if errors.Is(pushErr, ErrAlreadyUpToDate) {
+				utils.Logger(utils.LOG_SUCCESS, "already up-to-date")
+				return nil
+			}
+			return pushErr
 		}
 		utils.Logger(utils.LOG_SUCCESS, "push successful")
 	}
-	return "", err
+	return err
 }

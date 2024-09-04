@@ -20,4 +20,5 @@ var (
 	ErrInvalidPassphrase   = errors.New("invalid passphrase")
 	ErrKeyNotSupported     = errors.New("invalid key")
 	ErrAuthLoadFailed      = errors.New("failed to load auth")
+	ErrAlreadyUpToDate     = errors.New("already up to date")
 )

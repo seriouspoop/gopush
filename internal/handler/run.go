@@ -113,11 +113,8 @@ func Run(s servicer) *cobra.Command {
 
 			// Push changes
 			utils.Logger(utils.LOG_INFO, "Pushing changes...")
-			output, err := s.Push(setUpstreamBranch)
+			err = s.Push(setUpstreamBranch)
 			if err != nil {
-				if output != "" {
-					fmt.Println(output)
-				}
 				if errors.Is(err, svc.ErrAuthNotFound) {
 					fmt.Println(heredoc.Doc(`
 					Auth credentials for current remote are missing.
@@ -125,9 +122,6 @@ func Run(s servicer) *cobra.Command {
 					`))
 				}
 				return err
-			}
-			if output != "" {
-				fmt.Println(output)
 			}
 			return nil
 		},

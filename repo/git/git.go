@@ -33,6 +33,7 @@ type Errors struct {
 	InvalidAuthMethod   error
 	InvalidPassphrase   error
 	KeyNotSupported     error
+	AlreadyUpToDate     error
 }
 
 type Git struct {
@@ -166,7 +167,7 @@ func (g *Git) Pull(remote *model.Remote, branch model.Branch, auth *config.Crede
 	} else if errors.Is(err, git.ErrNonFastForwardUpdate) {
 		return g.err.PullFailed
 	} else if errors.Is(err, git.NoErrAlreadyUpToDate) {
-		return nil
+		return g.err.AlreadyUpToDate
 	}
 	return err
 }
@@ -264,7 +265,7 @@ func (g *Git) Push(remote *model.Remote, branch model.Branch, auth *config.Crede
 	if err != nil && strings.Contains(err.Error(), "unable to authenticate") {
 		return g.err.KeyNotSupported
 	} else if errors.Is(err, git.NoErrAlreadyUpToDate) {
-		return nil
+		return g.err.AlreadyUpToDate
 	}
 	return err
 }
