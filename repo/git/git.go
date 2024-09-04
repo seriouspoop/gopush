@@ -216,7 +216,6 @@ func (g *Git) AddThenCommit(commitMsg string) error {
 	}
 	_, err = w.Add(".")
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
 	_, err = w.Commit(commitMsg, &git.CommitOptions{
