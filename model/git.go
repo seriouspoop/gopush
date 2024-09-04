@@ -20,6 +20,10 @@ func (p Password) Valid() bool {
 	return len(string(p)) > 0
 }
 
+func (p Password) String() string {
+	return string(p)
+}
+
 type Provider int
 
 const (

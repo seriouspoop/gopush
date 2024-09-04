@@ -90,24 +90,28 @@ func (s *Svc) Pull(initial bool) error {
 			return ErrAuthNotFound
 		}
 	} else if remote.AuthMode() == model.AuthSSH {
-		passphrase, err := utils.Prompt(true, false, "passphrase")
-		if err != nil {
-			return err
+		if !s.passphrase.Valid() {
+			passphrase, err := utils.Prompt(true, false, "passphrase")
+			if err != nil {
+				return err
+			}
+			s.passphrase = model.Password(passphrase)
 		}
 		providerAuth = &config.Credentials{
-			Token: passphrase,
+			Token: s.passphrase.String(),
 		}
 	} else {
 		return ErrInvalidAuthMethod
 	}
 	pullErr := s.git.Pull(remote, pullBranch, providerAuth)
 	for errors.Is(pullErr, ErrInvalidPassphrase) {
-		passphrase, err := utils.Prompt(true, false, "passphrase again")
+		passphrase, err := utils.Prompt(true, false, "invalid passphrase")
 		if err != nil {
 			return err
 		}
+		s.passphrase = model.Password(passphrase)
 		providerAuth = &config.Credentials{
-			Token: passphrase,
+			Token: s.passphrase.String(),
 		}
 		pullErr = s.git.Pull(remote, pullBranch, providerAuth)
 	}
@@ -214,12 +218,15 @@ func (s *Svc) Push(setUpstreamBranch bool) (output string, err error) {
 				return "", ErrAuthNotFound
 			}
 		} else if remoteDetails.AuthMode() == model.AuthSSH {
-			passphrase, err := utils.Prompt(true, false, "passphrase")
-			if err != nil {
-				return "", err
+			if !s.passphrase.Valid() {
+				passphrase, err := utils.Prompt(true, false, "passphrase")
+				if err != nil {
+					return "", err
+				}
+				s.passphrase = model.Password(passphrase)
 			}
 			providerAuth = &config.Credentials{
-				Token: passphrase,
+				Token: s.passphrase.String(),
 			}
 		} else {
 			return "", ErrInvalidAuthMethod
@@ -230,8 +237,9 @@ func (s *Svc) Push(setUpstreamBranch bool) (output string, err error) {
 			if err != nil {
 				return "", err
 			}
+			s.passphrase = model.Password(passphrase)
 			providerAuth = &config.Credentials{
-				Token: passphrase,
+				Token: s.passphrase.String(),
 			}
 			pushErr = s.git.Push(remoteDetails, currBranch, providerAuth)
 		}
