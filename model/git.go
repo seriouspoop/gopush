@@ -14,6 +14,12 @@ func (b Branch) Valid() bool {
 	return len(b.String()) > 0
 }
 
+type Password string
+
+func (p Password) Valid() bool {
+	return len(string(p)) > 0
+}
+
 type Provider int
 
 const (
