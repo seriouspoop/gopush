@@ -254,7 +254,7 @@ func (s *Svc) Push(setUpstreamBranch bool) error {
 			}
 			pushErr = s.git.Push(remoteDetails, currBranch, providerAuth)
 		}
-		fmt.Println(pushErr.Error())
+		fmt.Println(pushErr)
 		if pushErr != nil {
 			if errors.Is(pushErr, ErrKeyNotSupported) {
 				message := fmt.Sprintf("copy contents of %s.pub and upload the keys on %s", filepath.Join(os.Getenv("HOME"), gopushDir, keyName), remoteDetails.Provider().String())
