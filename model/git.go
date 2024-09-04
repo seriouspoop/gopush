@@ -44,6 +44,16 @@ func (p Provider) String() string {
 	return ""
 }
 
+func (p Provider) HostURL() string {
+	providerToHostMap := map[Provider]string{
+		ProviderGITHUB:    "github.com",
+		ProviderBITBUCKET: "bitbucket.org",
+		ProviderGITLAB:    "gitlab.com",
+	}
+
+	return providerToHostMap[p]
+}
+
 type AuthMode int
 
 const (

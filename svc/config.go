@@ -185,6 +185,21 @@ func (s *Svc) SetRemoteSSHAuth() error {
 		}
 		utils.Logger(utils.LOG_SUCCESS, "keys generated")
 		message := fmt.Sprintf("copy contents of %s.pub and upload the keys on %s", filepath.Join(gopushDirPath, keyName), remoteDetails.Provider().String())
+		// add keys to known hosts
+		hostCode := fmt.Sprintf("Host %s\n  AddKeysToAgent yes\n  IdentityFile \"%s\"", remoteDetails.Provider().HostURL(), filepath.Join(gopushDirPath, keyName))
+		fileContent, err := os.ReadFile(filepath.Join(os.Getenv("HOME"), ".ssh", "config"))
+		if err != nil {
+			return err
+		}
+		fileContent = []byte(strings.Join([]string{string(fileContent), hostCode}, "\n"))
+		err = os.Remove(filepath.Join(os.Getenv("HOME"), ".ssh", "config"))
+		if err != nil {
+			return err
+		}
+		err = os.WriteFile(filepath.Join(os.Getenv("HOME"), ".ssh", "config"), fileContent, 0777)
+		if err != nil {
+			return err
+		}
 		utils.Logger(utils.LOG_STRICT_INFO, message)
 		return ErrWaitExit
 	} else {
