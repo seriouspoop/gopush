@@ -30,7 +30,7 @@ func Init(s servicer) *cobra.Command {
 			cmd.SilenceUsage = true
 			cmd.SetErrPrefix("❌ Error:")
 
-			// Generate gopush_config.toml
+			// Generate /.gopush/gopush_config.toml
 			err := s.SetUserPreference()
 			if err != nil {
 				return err
@@ -59,10 +59,20 @@ func Init(s servicer) *cobra.Command {
 				utils.Logger(utils.LOG_SUCCESS, "remote initialized")
 			}
 
-			utils.Logger(utils.LOG_INFO, "Generating config file...")
-			err = s.SetRemoteAuth()
+			// TODO -> seperate control flow for http and ssh
+			err = s.SetRemoteHTTPAuth()
 			if err != nil {
-				return err
+				if errors.Is(err, svc.ErrInvalidAuthMethod) {
+					err := s.SetRemoteSSHAuth()
+					if err != nil {
+						if errors.Is(err, svc.ErrWaitExit) {
+							return nil
+						}
+						return err
+					}
+				} else {
+					return err
+				}
 			}
 			utils.Logger(utils.LOG_SUCCESS, "authorization set")
 
@@ -70,7 +80,6 @@ func Init(s servicer) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			utils.Logger(utils.LOG_SUCCESS, "config file generated")
 
 			// staging current files
 			utils.Logger(utils.LOG_INFO, "Staging changes...")

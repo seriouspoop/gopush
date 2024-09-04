@@ -14,7 +14,7 @@ func valid(s string) error {
 	return nil
 }
 
-func Prompt(password bool, label string, opts ...interface{}) (res string, err error) {
+func Prompt(password bool, allowEmpty bool, label string, opts ...interface{}) (res string, err error) {
 	template := &promptui.PromptTemplates{
 		Valid:   "{{ . }}: ",
 		Success: "{{ `\U00002714` | green }} {{ . | faint}}{{ `:` | faint}} ",
@@ -27,7 +27,10 @@ func Prompt(password bool, label string, opts ...interface{}) (res string, err e
 	prompt := promptui.Prompt{
 		Label:     label,
 		Templates: template,
-		Validate:  valid,
+	}
+
+	if !allowEmpty {
+		prompt.Validate = valid
 	}
 
 	if password {

@@ -16,4 +16,5 @@ var (
 	ErrFileNotFound        = errors.New("file not found")
 	ErrAuthNotFound        = errors.New("auth credentials not found")
 	ErrInvalidAuthMethod   = errors.New("invalid auth method")
+	ErrWaitExit            = errors.New("waiting for user")
 )

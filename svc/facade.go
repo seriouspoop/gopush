@@ -31,7 +31,10 @@ type scriptHelper interface {
 	TestsPresent() (bool, error)
 	RunTests() (string, error)
 	Push(branch model.Branch, withUpStream bool) (string, error)
-	FileExists(filename, path string) bool
+	Exists(filename, path string) bool
 	CreateFile(filename, path string) (*os.File, error)
+	CreateDir(name, path string) error
 	SetUpstream(remoteName string, branch model.Branch) error
+	GenerateSSHKey(keyName, path, mail, passphrase string) error
+	ShowFileContent(filename, path string) (string, error)
 }
