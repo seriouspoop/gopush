@@ -185,6 +185,8 @@ func (s *Svc) StageChanges() error {
 			return err
 		}
 		utils.Logger(utils.LOG_SUCCESS, "files added")
+	} else {
+		utils.Logger(utils.LOG_SUCCESS, "no files changed")
 	}
 	return nil
 }
