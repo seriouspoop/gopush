@@ -161,7 +161,7 @@ func (g *Git) Pull(remote *model.Remote, branch model.Branch, auth *config.Crede
 		Force:         false,
 	})
 
-	if strings.Contains(err.Error(), "unable to authenticate") {
+	if err != nil && strings.Contains(err.Error(), "unable to authenticate") {
 		return g.err.KeyNotSupported
 	} else if errors.Is(err, git.ErrNonFastForwardUpdate) {
 		return g.err.PullFailed
@@ -261,8 +261,7 @@ func (g *Git) Push(remote *model.Remote, branch model.Branch, auth *config.Crede
 		Force: true,
 		Auth:  Auth,
 	})
-	fmt.Println(err)
-	if strings.Contains(err.Error(), "unable to authenticate") {
+	if err != nil && strings.Contains(err.Error(), "unable to authenticate") {
 		return g.err.KeyNotSupported
 	} else if errors.Is(err, git.NoErrAlreadyUpToDate) {
 		return nil
