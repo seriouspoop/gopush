@@ -226,7 +226,7 @@ func (s *Svc) Push(setUpstreamBranch bool) (output string, err error) {
 		}
 		pushErr := s.git.Push(remoteDetails, currBranch, providerAuth)
 		for errors.Is(pushErr, ErrInvalidPassphrase) {
-			passphrase, err := utils.Prompt(true, false, "passphrase again")
+			passphrase, err := utils.Prompt(true, false, "invalid passphrase")
 			if err != nil {
 				return "", err
 			}

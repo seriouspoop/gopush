@@ -190,5 +190,5 @@ func (s *Svc) SetRemoteSSHAuth() error {
 	} else {
 		utils.Logger(utils.LOG_SUCCESS, "key found")
 	}
-	return nil
+	return err
 }

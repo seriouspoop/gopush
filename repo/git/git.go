@@ -157,7 +157,6 @@ func (g *Git) Pull(remote *model.Remote, branch model.Branch, auth *config.Crede
 		ReferenceName: plumbing.NewBranchReferenceName(branch.String()),
 		SingleBranch:  true,
 		Auth:          Auth,
-		Progress:      os.Stdout,
 		Force:         false,
 	})
 
@@ -253,9 +252,8 @@ func (g *Git) Push(remote *model.Remote, branch model.Branch, auth *config.Crede
 			// final refspecs
 			gitCfg.RefSpec(fmt.Sprintf("+refs/heads/%s:refs/heads/%s", branch.String(), branch.String())),
 		},
-		Force:    true,
-		Progress: os.Stdout,
-		Auth:     Auth,
+		Force: true,
+		Auth:  Auth,
 	})
 	if errors.Is(err, git.NoErrAlreadyUpToDate) {
 		return nil
