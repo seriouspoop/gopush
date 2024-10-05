@@ -76,7 +76,10 @@ func (s *Svc) Pull(initial bool) error {
 		return err
 	}
 	if initial {
-		_, err := s.bash.PullBranch(remoteDetails.Name, pullBranch, true)
+		output, err := s.bash.PullBranch(remoteDetails.Name, pullBranch, true)
+		if err != nil {
+			utils.Logger(utils.LOG_FAILURE, output)
+		}
 		return err
 	}
 
@@ -118,9 +121,16 @@ func (s *Svc) Pull(initial bool) error {
 	if errors.Is(pullErr, ErrKeyNotSupported) {
 		message := fmt.Sprintf("copy contents of %s.pub and upload the keys on %s", filepath.Join(os.Getenv("HOME"), gopushDir, keyName), remoteDetails.Provider().String())
 		utils.Logger(utils.LOG_STRICT_INFO, message)
-	}
-	if errors.Is(pullErr, ErrAlreadyUpToDate) {
+	} else if errors.Is(pullErr, ErrAlreadyUpToDate) {
 		utils.Logger(utils.LOG_SUCCESS, "already up-to-date")
+		return nil
+	} else if errors.Is(pullErr, ErrMergeFailed) {
+		output, err := s.bash.PullMerge()
+		if err != nil {
+			utils.Logger(utils.LOG_FAILURE, output)
+			return err
+		}
+		utils.Logger(utils.LOG_SUCCESS, "changes merged")
 		return nil
 	}
 	return pullErr
@@ -133,7 +143,6 @@ func (s *Svc) SwitchBranchIfExists(branch model.Branch) (bool, error) {
 	}
 	for _, br := range branches {
 		if br.String() == branch.String() {
-			fmt.Printf("Branch %s already exists. Switching branch...\n", branch.String())
 			err = s.git.CheckoutBranch(branch)
 			return true, err
 		}

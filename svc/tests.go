@@ -13,7 +13,7 @@ func (s *Svc) CheckTestsAndRun() (bool, error) {
 		s.bash.GenerateMocks()
 		output, err := s.bash.RunTests()
 		if err != nil {
-			utils.Logger(utils.LOG_INFO, utils.Faint(output))
+			utils.Logger(utils.LOG_FAILURE, output)
 			return false, ErrTestsFailed
 		}
 		return true, nil

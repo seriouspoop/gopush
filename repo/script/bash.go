@@ -77,18 +77,18 @@ func (b *Bash) Push(branch model.Branch, withUpStream bool) (string, error) {
 	return string(output[:len(output)-1]), err
 }
 
-func (b *Bash) Exists(name, path string) bool {
+func (b *Bash) Exists(path, name string) bool {
 	fpath := filepath.Join(path, name)
 	_, err := os.Stat(fpath)
 	return !errors.Is(err, os.ErrNotExist)
 }
 
-func (b *Bash) CreateFile(name, path string) (*os.File, error) {
+func (b *Bash) CreateFile(path, name string) (*os.File, error) {
 	fpath := filepath.Join(path, name)
 	return os.Create(fpath)
 }
 
-func (b *Bash) CreateDir(name, path string) error {
+func (b *Bash) CreateDir(path, name string) error {
 	dpath := filepath.Join(path, name)
 	return os.Mkdir(dpath, os.ModePerm)
 }
@@ -100,19 +100,15 @@ func (b *Bash) SetUpstream(remoteName string, branch model.Branch) error {
 	return err
 }
 
-func (b *Bash) GenerateSSHKey(keyName, path, mail, passphrase string) error {
+func (b *Bash) GenerateSSHKey(path, keyName, mail, passphrase string) error {
 	filePath := filepath.Join(path, keyName)
 	cmd := exec.Command("ssh-keygen", "-t", "ed25519", "-C", mail, "-f", filePath, "-P", passphrase)
 	_, err := cmd.CombinedOutput()
 	return err
 }
 
-func (b *Bash) ShowFileContent(filename, path string) (string, error) {
-	filePath := filepath.Join(path, filename)
-	cmd := exec.Command("cat", filePath)
+func (b *Bash) PullMerge() (string, error) {
+	cmd := exec.Command("git", "merge")
 	output, err := cmd.CombinedOutput()
-	if err != nil {
-		return "", err
-	}
-	return string(output[:len(output)-1]), nil
+	return string(output[:len(output)-1]), err
 }

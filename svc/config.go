@@ -23,8 +23,8 @@ func (s *Svc) createConfigPath() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if !s.bash.Exists(gopushDir, userDir) {
-		err := s.bash.CreateDir(gopushDir, userDir)
+	if !s.bash.Exists(userDir, gopushDir) {
+		err := s.bash.CreateDir(userDir, gopushDir)
 		if err != nil {
 			return "", err
 		}
@@ -32,8 +32,8 @@ func (s *Svc) createConfigPath() (string, error) {
 
 	gopushDirPath := filepath.Join(userDir, gopushDir)
 
-	if !s.bash.Exists(configFile, gopushDirPath) {
-		_, err := s.bash.CreateFile(configFile, gopushDirPath)
+	if !s.bash.Exists(gopushDirPath, configFile) {
+		_, err := s.bash.CreateFile(gopushDirPath, configFile)
 		if err != nil {
 			return "", err
 		}
@@ -46,7 +46,7 @@ func (s *Svc) LoadConfig() error {
 	if err != nil {
 		return err
 	}
-	if !s.bash.Exists(configFile, gopushDirPath) {
+	if !s.bash.Exists(gopushDirPath, configFile) {
 		return ErrFileNotFound
 	}
 
@@ -78,6 +78,8 @@ func (s *Svc) SetUserPreference() error {
 			remoteName = DefaultRemote
 		}
 		cfg.DefaultRemote = remoteName
+	} else {
+		utils.Logger(utils.LOG_SUCCESS, "remote name found")
 	}
 	if cfg.BranchPrefix == "" {
 		branchPrefix, err := utils.Prompt(false, true, "branch prefix (default=empty)")
@@ -86,6 +88,8 @@ func (s *Svc) SetUserPreference() error {
 		}
 		branchPrefix = strings.TrimSpace(branchPrefix)
 		cfg.BranchPrefix = branchPrefix
+	} else {
+		utils.Logger(utils.LOG_SUCCESS, "branch prefix found")
 	}
 	return cfg.Write(configFile, gopushDirPath)
 }
@@ -169,7 +173,7 @@ func (s *Svc) SetRemoteSSHAuth() error {
 	}
 
 	utils.Logger(utils.LOG_INFO, "Gathering ssh keys...")
-	if !s.bash.Exists(keyName, gopushDirPath) {
+	if !s.bash.Exists(gopushDirPath, keyName) {
 		// generate ssh key pair
 		mail, err := utils.Prompt(false, false, "mail")
 		if err != nil {
@@ -179,7 +183,7 @@ func (s *Svc) SetRemoteSSHAuth() error {
 		if err != nil {
 			return err
 		}
-		err = s.bash.GenerateSSHKey(keyName, gopushDirPath, mail, passphrase)
+		err = s.bash.GenerateSSHKey(gopushDirPath, keyName, mail, passphrase)
 		if err != nil {
 			return err
 		}

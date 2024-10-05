@@ -34,6 +34,7 @@ type Errors struct {
 	InvalidPassphrase   error
 	KeyNotSupported     error
 	AlreadyUpToDate     error
+	MergeFailed         error
 }
 
 type Git struct {
@@ -159,17 +160,23 @@ func (g *Git) Pull(remote *model.Remote, branch model.Branch, auth *config.Crede
 		ReferenceName: plumbing.NewBranchReferenceName(branch.String()),
 		SingleBranch:  true,
 		Auth:          Auth,
+		Progress:      os.Stdin,
 		Force:         false,
 	})
 
-	if err != nil && strings.Contains(err.Error(), "unable to authenticate") {
-		return g.err.KeyNotSupported
-	} else if errors.Is(err, git.ErrNonFastForwardUpdate) {
+	if err != nil {
+		if strings.Contains(err.Error(), "unable to authenticate") {
+			return g.err.KeyNotSupported
+		}
+		if errors.Is(err, git.ErrNonFastForwardUpdate) {
+			return g.err.MergeFailed
+		}
+		if errors.Is(err, git.NoErrAlreadyUpToDate) {
+			return g.err.AlreadyUpToDate
+		}
 		return g.err.PullFailed
-	} else if errors.Is(err, git.NoErrAlreadyUpToDate) {
-		return g.err.AlreadyUpToDate
 	}
-	return err
+	return nil
 }
 
 func (g *Git) GetBranchNames() ([]model.Branch, error) {
@@ -258,8 +265,9 @@ func (g *Git) Push(remote *model.Remote, branch model.Branch, auth *config.Crede
 			// final refspecs
 			gitCfg.RefSpec(fmt.Sprintf("+refs/heads/%s:refs/heads/%s", branch.String(), branch.String())),
 		},
-		Force: true,
-		Auth:  Auth,
+		Force:    true,
+		Progress: os.Stdout,
+		Auth:     Auth,
 	})
 	if err != nil && strings.Contains(err.Error(), "unable to authenticate") {
 		return g.err.KeyNotSupported

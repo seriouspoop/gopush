@@ -42,10 +42,6 @@ func Logger(s log, msg string) {
 	fmt.Printf("%s%s\n", statusToUnicode[s], msg)
 }
 
-func Faint(s string) string {
-	return faint(s)
-}
-
 func ErrorSymbol() string {
 	return red("\U00002718")
 }

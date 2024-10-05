@@ -10,8 +10,6 @@ import (
 type gitHelper interface {
 	GetRepo() error
 	CreateRepo() error
-	// Fetch() error
-	// Merge(remoteName string, branchName model.Branch) error
 	CreateBranch(name model.Branch) error
 	GetBranchNames() ([]model.Branch, error)
 	CheckoutBranch(name model.Branch) error
@@ -31,10 +29,12 @@ type scriptHelper interface {
 	TestsPresent() (bool, error)
 	RunTests() (string, error)
 	Push(branch model.Branch, withUpStream bool) (string, error)
-	Exists(filename, path string) bool
-	CreateFile(filename, path string) (*os.File, error)
-	CreateDir(name, path string) error
+	Exists(path, name string) bool
+	CreateFile(path, name string) (*os.File, error)
+	CreateDir(path, name string) error
 	SetUpstream(remoteName string, branch model.Branch) error
-	GenerateSSHKey(keyName, path, mail, passphrase string) error
-	ShowFileContent(filename, path string) (string, error)
+	GenerateSSHKey(path, keyName, mail, passphrase string) error
+
+	// TODO -> replace this with go-git merge
+	PullMerge() (string, error)
 }

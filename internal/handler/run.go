@@ -60,18 +60,6 @@ func Run(s servicer) *cobra.Command {
 				return err
 			}
 
-			utils.Logger(utils.LOG_INFO, "Pulling remote changes...")
-			err = s.Pull(false)
-			if err != nil {
-				if errors.Is(err, svc.ErrAuthNotFound) {
-					fmt.Println(heredoc.Doc(`
-					Auth credentials for current remote not found.
-					Use "gopush init" to generate your config file.
-					`))
-				}
-				return err
-			}
-			utils.Logger(utils.LOG_SUCCESS, "changes fetched")
 			return nil
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -109,7 +97,19 @@ func Run(s servicer) *cobra.Command {
 				return err
 			}
 
-			//TODO -> pull and merge from main
+			// Pull changes
+			utils.Logger(utils.LOG_INFO, "Pulling remote changes...")
+			err = s.Pull(false)
+			if err != nil {
+				if errors.Is(err, svc.ErrAuthNotFound) {
+					fmt.Println(heredoc.Doc(`
+					Auth credentials for current remote not found.
+					Use "gopush init" to generate your config file.
+					`))
+				}
+				return err
+			}
+			utils.Logger(utils.LOG_SUCCESS, "changes fetched")
 
 			// Push changes
 			utils.Logger(utils.LOG_INFO, "Pushing changes...")
