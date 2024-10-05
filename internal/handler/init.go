@@ -96,7 +96,6 @@ func Init(s servicer) *cobra.Command {
 				}
 				return err
 			}
-			utils.Logger(utils.LOG_SUCCESS, "pulled changes")
 			fmt.Println(heredoc.Doc(`
 
 				Now you will be able to use "gopush run" command for you workflow.
