@@ -10,7 +10,7 @@ type servicer interface {
 	SetRemoteHTTPAuth() error
 	LoadConfig() error
 	// FetchAndMerge() error
-	Pull(initial bool) error
+	Pull(force bool) error
 	StageChanges() error
 	SwitchBranchIfExists(branch model.Branch) (bool, error)
 	CreateBranchAndSwitch(branch model.Branch) error

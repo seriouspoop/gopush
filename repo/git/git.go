@@ -126,7 +126,7 @@ func (g *Git) AddRemote(remote *model.Remote) error {
 	return err
 }
 
-func (g *Git) Pull(remote *model.Remote, branch model.Branch, auth *config.Credentials) error {
+func (g *Git) Pull(remote *model.Remote, branch model.Branch, auth *config.Credentials, force bool) error {
 	if auth == nil {
 		return g.err.AuthNotFound
 	}

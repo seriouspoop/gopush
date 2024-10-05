@@ -66,20 +66,13 @@ func (s *Svc) InitializeRemote() error {
 	return nil
 }
 
-func (s *Svc) Pull(initial bool) error {
+func (s *Svc) Pull(force bool) error {
 	pullBranch, err := s.bash.GetCurrentBranch()
 	if err != nil {
 		return err
 	}
 	remoteDetails, err := s.git.GetRemoteDetails()
 	if err != nil {
-		return err
-	}
-	if initial {
-		output, err := s.bash.PullBranch(remoteDetails.Name, pullBranch, true)
-		if err != nil {
-			utils.Logger(utils.LOG_FAILURE, output)
-		}
 		return err
 	}
 
@@ -106,7 +99,7 @@ func (s *Svc) Pull(initial bool) error {
 	} else {
 		return ErrInvalidAuthMethod
 	}
-	pullErr := s.git.Pull(remoteDetails, pullBranch, providerAuth)
+	pullErr := s.git.Pull(remoteDetails, pullBranch, providerAuth, force)
 	for errors.Is(pullErr, ErrInvalidPassphrase) {
 		passphrase, err := utils.Prompt(true, false, "invalid passphrase")
 		if err != nil {
@@ -116,7 +109,7 @@ func (s *Svc) Pull(initial bool) error {
 		providerAuth = &config.Credentials{
 			Token: s.passphrase.String(),
 		}
-		pullErr = s.git.Pull(remoteDetails, pullBranch, providerAuth)
+		pullErr = s.git.Pull(remoteDetails, pullBranch, providerAuth, force)
 	}
 	if errors.Is(pullErr, ErrKeyNotSupported) {
 		message := fmt.Sprintf("copy contents of %s.pub and upload the keys on %s", filepath.Join(os.Getenv("HOME"), gopushDir, keyName), remoteDetails.Provider().String())
