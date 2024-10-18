@@ -100,9 +100,6 @@ func (s *Svc) Pull(force bool) error {
 		return ErrInvalidAuthMethod
 	}
 	pullErr := s.git.Pull(remoteDetails, pullBranch, providerAuth, force)
-	if pullErr == nil {
-		utils.Logger(utils.LOG_SUCCESS, "changes pulled")
-	}
 	for errors.Is(pullErr, ErrInvalidPassphrase) {
 		passphrase, err := utils.Prompt(true, false, "invalid passphrase")
 		if err != nil {
@@ -129,6 +126,7 @@ func (s *Svc) Pull(force bool) error {
 		utils.Logger(utils.LOG_SUCCESS, "changes merged")
 		return nil
 	}
+	utils.Logger(utils.LOG_SUCCESS, "changes pulled")
 	return pullErr
 }
 

@@ -109,7 +109,6 @@ func Run(s servicer) *cobra.Command {
 				}
 				return err
 			}
-			utils.Logger(utils.LOG_SUCCESS, "changes fetched")
 
 			// Push changes
 			utils.Logger(utils.LOG_INFO, "Pushing changes...")
