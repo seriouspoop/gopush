@@ -43,7 +43,6 @@ func Init(s servicer) *cobra.Command {
 					if err != nil {
 						return err
 					}
-					utils.Logger(utils.LOG_SUCCESS, "repository initialized")
 				}
 
 				// load config for add remote
