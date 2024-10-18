@@ -19,20 +19,17 @@ type gitHelper interface {
 	ChangeOccured() (bool, error)
 	AddThenCommit(commitMsg string) error
 	Pull(remote *model.Remote, branch model.Branch, auth *config.Credentials, force bool) error
-	Push(remote *model.Remote, branch model.Branch, auth *config.Credentials) error
+	Push(remote *model.Remote, branch model.Branch, auth *config.Credentials, force bool) error
 }
 
 type scriptHelper interface {
 	GetCurrentBranch() (model.Branch, error)
-	PullBranch(remoteName string, branch model.Branch, force bool) (string, error)
 	GenerateMocks() (string, error)
 	TestsPresent() (bool, error)
 	RunTests() (string, error)
-	Push(branch model.Branch, withUpStream bool) (string, error)
 	Exists(path, name string) bool
 	CreateFile(path, name string) (*os.File, error)
 	CreateDir(path, name string) error
-	SetUpstream(remoteName string, branch model.Branch) error
 	GenerateSSHKey(path, keyName, mail, passphrase string) error
 
 	// TODO -> replace this with go-git merge
