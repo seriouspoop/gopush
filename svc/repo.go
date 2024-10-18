@@ -100,6 +100,9 @@ func (s *Svc) Pull(force bool) error {
 		return ErrInvalidAuthMethod
 	}
 	pullErr := s.git.Pull(remoteDetails, pullBranch, providerAuth, force)
+	if pullErr == nil {
+		utils.Logger(utils.LOG_SUCCESS, "changes pulled")
+	}
 	for errors.Is(pullErr, ErrInvalidPassphrase) {
 		passphrase, err := utils.Prompt(true, false, "invalid passphrase")
 		if err != nil {
@@ -196,77 +199,66 @@ func (s *Svc) StageChanges() error {
 	return nil
 }
 
-func (s *Svc) Push(setUpstreamBranch bool) error {
+func (s *Svc) Push(force bool) error {
 	currBranch, err := s.bash.GetCurrentBranch()
 	if err != nil {
 		return err
 	}
-	if setUpstreamBranch {
-		_, err = s.bash.Push(currBranch, true)
-		if err != nil {
-			return err
-		}
-	} else {
-		remoteDetails, err := s.git.GetRemoteDetails()
-		if err != nil {
-			return err
-		}
+	remoteDetails, err := s.git.GetRemoteDetails()
+	if err != nil {
+		return err
+	}
 
-		if remoteDetails == nil {
-			return ErrRemoteNotFound
+	var providerAuth *config.Credentials
+	if remoteDetails.AuthMode() == model.AuthHTTP {
+		if s.cfg == nil {
+			return ErrConfigNotLoaded
 		}
-
-		var providerAuth *config.Credentials
-		if remoteDetails.AuthMode() == model.AuthHTTP {
-			if s.cfg == nil {
-				return ErrConfigNotLoaded
-			}
-			providerAuth = s.cfg.ProviderAuth(remoteDetails.Provider())
-			if providerAuth == nil {
-				return ErrAuthNotFound
-			}
-		} else if remoteDetails.AuthMode() == model.AuthSSH {
-			if !s.passphrase.Valid() {
-				passphrase, err := utils.Prompt(true, false, "passphrase")
-				if err != nil {
-					return err
-				}
-				s.passphrase = model.Password(passphrase)
-			}
-			providerAuth = &config.Credentials{
-				Token: s.passphrase.String(),
-			}
-		} else {
-			return ErrInvalidAuthMethod
-		}
-
+		providerAuth = s.cfg.ProviderAuth(remoteDetails.Provider())
 		if providerAuth == nil {
-			return ErrAuthLoadFailed
+			return ErrAuthNotFound
 		}
-		pushErr := s.git.Push(remoteDetails, currBranch, providerAuth)
-		for errors.Is(pushErr, ErrInvalidPassphrase) {
-			passphrase, err := utils.Prompt(true, false, "invalid passphrase")
+	} else if remoteDetails.AuthMode() == model.AuthSSH {
+		if !s.passphrase.Valid() {
+			passphrase, err := utils.Prompt(true, false, "passphrase")
 			if err != nil {
 				return err
 			}
 			s.passphrase = model.Password(passphrase)
-			providerAuth = &config.Credentials{
-				Token: s.passphrase.String(),
-			}
-			pushErr = s.git.Push(remoteDetails, currBranch, providerAuth)
 		}
-		if pushErr != nil {
-			if errors.Is(pushErr, ErrKeyNotSupported) {
-				message := fmt.Sprintf("copy contents of %s.pub and upload the keys on %s", filepath.Join(os.Getenv("HOME"), gopushDir, keyName), remoteDetails.Provider().String())
-				utils.Logger(utils.LOG_STRICT_INFO, message)
-			}
-			if errors.Is(pushErr, ErrAlreadyUpToDate) {
-				utils.Logger(utils.LOG_SUCCESS, "already up-to-date")
-				return nil
-			}
-			return pushErr
+		providerAuth = &config.Credentials{
+			Token: s.passphrase.String(),
 		}
-		utils.Logger(utils.LOG_SUCCESS, "push successful")
+	} else {
+		return ErrInvalidAuthMethod
 	}
+
+	if providerAuth == nil {
+		return ErrAuthLoadFailed
+	}
+	pushErr := s.git.Push(remoteDetails, currBranch, providerAuth, force)
+	for errors.Is(pushErr, ErrInvalidPassphrase) {
+		passphrase, err := utils.Prompt(true, false, "invalid passphrase")
+		if err != nil {
+			return err
+		}
+		s.passphrase = model.Password(passphrase)
+		providerAuth = &config.Credentials{
+			Token: s.passphrase.String(),
+		}
+		pushErr = s.git.Push(remoteDetails, currBranch, providerAuth, force)
+	}
+	if pushErr != nil {
+		if errors.Is(pushErr, ErrKeyNotSupported) {
+			message := fmt.Sprintf("copy contents of %s.pub and upload the keys on %s", filepath.Join(os.Getenv("HOME"), gopushDir, keyName), remoteDetails.Provider().String())
+			utils.Logger(utils.LOG_STRICT_INFO, message)
+		}
+		if errors.Is(pushErr, ErrAlreadyUpToDate) {
+			utils.Logger(utils.LOG_SUCCESS, "already up-to-date")
+			return nil
+		}
+		return pushErr
+	}
+	utils.Logger(utils.LOG_SUCCESS, "push successful")
 	return err
 }

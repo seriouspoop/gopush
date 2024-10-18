@@ -127,6 +127,7 @@ func (g *Git) AddRemote(remote *model.Remote) error {
 }
 
 func (g *Git) Pull(remote *model.Remote, branch model.Branch, auth *config.Credentials, force bool) error {
+
 	if auth == nil {
 		return g.err.AuthNotFound
 	}
@@ -160,8 +161,7 @@ func (g *Git) Pull(remote *model.Remote, branch model.Branch, auth *config.Crede
 		ReferenceName: plumbing.NewBranchReferenceName(branch.String()),
 		SingleBranch:  true,
 		Auth:          Auth,
-		Progress:      os.Stdin,
-		Force:         false,
+		Force:         force,
 	})
 
 	if err != nil {
@@ -233,7 +233,7 @@ func (g *Git) AddThenCommit(commitMsg string) error {
 	return err
 }
 
-func (g *Git) Push(remote *model.Remote, branch model.Branch, auth *config.Credentials) error {
+func (g *Git) Push(remote *model.Remote, branch model.Branch, auth *config.Credentials, force bool) error {
 	if auth == nil {
 		return g.err.AuthNotFound
 	}
@@ -265,7 +265,7 @@ func (g *Git) Push(remote *model.Remote, branch model.Branch, auth *config.Crede
 			// final refspecs
 			gitCfg.RefSpec(fmt.Sprintf("+refs/heads/%s:refs/heads/%s", branch.String(), branch.String())),
 		},
-		Force:    true,
+		Force:    force,
 		Progress: os.Stdout,
 		Auth:     Auth,
 	})

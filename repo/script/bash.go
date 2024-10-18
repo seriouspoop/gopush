@@ -2,7 +2,6 @@ package script
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -33,17 +32,6 @@ func (b *Bash) GetCurrentBranch() (model.Branch, error) {
 	return model.Branch(string(output[:len(output)-1])), nil
 }
 
-func (b *Bash) PullBranch(remoteName string, branch model.Branch, force bool) (string, error) {
-	var cmd *exec.Cmd
-	if force {
-		cmd = exec.Command("git", "pull", remoteName, branch.String(), "--allow-unrelated-histories")
-	} else {
-		cmd = exec.Command("git", "pull", remoteName, branch.String())
-	}
-	output, err := cmd.CombinedOutput()
-	return string(output[:len(output)-1]), err
-}
-
 func (b *Bash) GenerateMocks() (string, error) {
 	cmd := exec.Command("go", "generate", "./...")
 	output, err := cmd.CombinedOutput()
@@ -65,18 +53,6 @@ func (b *Bash) RunTests() (string, error) {
 	return string(output[:len(output)-1]), err
 }
 
-// TODO -> shift this to git repo
-func (b *Bash) Push(branch model.Branch, withUpStream bool) (string, error) {
-	var cmd *exec.Cmd
-	if withUpStream {
-		cmd = exec.Command("git", "push", "-u", "origin", branch.String())
-	} else {
-		cmd = exec.Command("git", "push", "origin", branch.String())
-	}
-	output, err := cmd.CombinedOutput()
-	return string(output[:len(output)-1]), err
-}
-
 func (b *Bash) Exists(path, name string) bool {
 	fpath := filepath.Join(path, name)
 	_, err := os.Stat(fpath)
@@ -93,13 +69,6 @@ func (b *Bash) CreateDir(path, name string) error {
 	return os.Mkdir(dpath, os.ModePerm)
 }
 
-func (b *Bash) SetUpstream(remoteName string, branch model.Branch) error {
-	remoteArg := fmt.Sprintf("%s/%s", remoteName, branch)
-	cmd := exec.Command("git", "branch", "--set-upstream-to", remoteArg)
-	_, err := cmd.CombinedOutput()
-	return err
-}
-
 func (b *Bash) GenerateSSHKey(path, keyName, mail, passphrase string) error {
 	filePath := filepath.Join(path, keyName)
 	cmd := exec.Command("ssh-keygen", "-t", "ed25519", "-C", mail, "-f", filePath, "-P", passphrase)
@@ -107,6 +76,7 @@ func (b *Bash) GenerateSSHKey(path, keyName, mail, passphrase string) error {
 	return err
 }
 
+// TODO -> migrate this to go-git
 func (b *Bash) PullMerge() (string, error) {
 	cmd := exec.Command("git", "merge")
 	output, err := cmd.CombinedOutput()
