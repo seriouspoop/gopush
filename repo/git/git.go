@@ -270,9 +270,8 @@ func (g *Git) Push(remote *model.Remote, branch model.Branch, auth *config.Crede
 			// final refspecs
 			gitCfg.RefSpec(fmt.Sprintf("+refs/heads/%s:refs/heads/%s", branch.String(), branch.String())),
 		},
-		Force:    force,
-		Progress: os.Stdout,
-		Auth:     Auth,
+		Force: force,
+		Auth:  Auth,
 	})
 	if err != nil && strings.Contains(err.Error(), "unable to authenticate") {
 		return g.err.KeyNotSupported
