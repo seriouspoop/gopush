@@ -23,18 +23,19 @@ const (
 )
 
 type Errors struct {
-	RemoteNotFound      error
-	RemoteNotLoaded     error
-	RemoteAlreadyExists error
-	RepoAlreadyExists   error
-	RepoNotFound        error
-	PullFailed          error
-	AuthNotFound        error
-	InvalidAuthMethod   error
-	InvalidPassphrase   error
-	KeyNotSupported     error
-	AlreadyUpToDate     error
-	MergeFailed         error
+	RemoteNotFound       error
+	RemoteNotLoaded      error
+	RemoteAlreadyExists  error
+	RepoAlreadyExists    error
+	RepoNotFound         error
+	PullFailed           error
+	AuthNotFound         error
+	InvalidAuthMethod    error
+	InvalidPassphrase    error
+	KeyNotSupported      error
+	AlreadyUpToDate      error
+	MergeFailed          error
+	RemoteBranchNotFound error
 }
 
 type Git struct {
@@ -168,12 +169,16 @@ func (g *Git) Pull(remote *model.Remote, branch model.Branch, auth *config.Crede
 		if strings.Contains(err.Error(), "unable to authenticate") {
 			return g.err.KeyNotSupported
 		}
-		if errors.Is(err, git.ErrNonFastForwardUpdate) {
+		if errors.Is(err, git.ErrNonFastForwardUpdate) || errors.Is(err, git.ErrFastForwardMergeNotPossible) {
 			return g.err.MergeFailed
 		}
 		if errors.Is(err, git.NoErrAlreadyUpToDate) {
 			return g.err.AlreadyUpToDate
 		}
+		if strings.Contains(err.Error(), "reference not found") {
+			return g.err.RemoteBranchNotFound
+		}
+		fmt.Println(err)
 		return g.err.PullFailed
 	}
 	return nil

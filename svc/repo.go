@@ -126,7 +126,10 @@ func (s *Svc) Pull(force bool) error {
 		utils.Logger(utils.LOG_SUCCESS, "changes merged")
 		return nil
 	}
-	utils.Logger(utils.LOG_SUCCESS, "changes pulled")
+
+	if pullErr == nil {
+		utils.Logger(utils.LOG_SUCCESS, "changes pulled")
+	}
 	return pullErr
 }
 

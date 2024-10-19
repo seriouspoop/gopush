@@ -17,17 +17,18 @@ type Root struct {
 
 func NewRoot() (*Root, error) {
 	gitHelper, err := git.New(&git.Errors{
-		RemoteNotFound:      svc.ErrRemoteNotFound,
-		RemoteNotLoaded:     svc.ErrRemoteNotLoaded,
-		RemoteAlreadyExists: svc.ErrRemoteAlreadyExists,
-		RepoAlreadyExists:   svc.ErrRepoAlreadyExists,
-		RepoNotFound:        svc.ErrRepoNotFound,
-		PullFailed:          svc.ErrPullFailed,
-		AuthNotFound:        svc.ErrAuthNotFound,
-		InvalidAuthMethod:   svc.ErrInvalidAuthMethod,
-		InvalidPassphrase:   svc.ErrInvalidPassphrase,
-		KeyNotSupported:     svc.ErrKeyNotSupported,
-		AlreadyUpToDate:     svc.ErrAlreadyUpToDate,
+		RemoteNotFound:       svc.ErrRemoteNotFound,
+		RemoteNotLoaded:      svc.ErrRemoteNotLoaded,
+		RemoteAlreadyExists:  svc.ErrRemoteAlreadyExists,
+		RepoAlreadyExists:    svc.ErrRepoAlreadyExists,
+		RepoNotFound:         svc.ErrRepoNotFound,
+		PullFailed:           svc.ErrPullFailed,
+		AuthNotFound:         svc.ErrAuthNotFound,
+		InvalidAuthMethod:    svc.ErrInvalidAuthMethod,
+		InvalidPassphrase:    svc.ErrInvalidPassphrase,
+		KeyNotSupported:      svc.ErrKeyNotSupported,
+		AlreadyUpToDate:      svc.ErrAlreadyUpToDate,
+		RemoteBranchNotFound: svc.ErrRemoteBranchNotFound,
 	})
 	if err != nil {
 		return nil, err
