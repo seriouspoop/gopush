@@ -18,6 +18,7 @@ Check gopush version to verify installation.
 ```
 gopush -v
 ```
+Add `$(go env GOPATH)` to the path.
 
 ## Usage
 
