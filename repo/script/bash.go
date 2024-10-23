@@ -76,7 +76,6 @@ func (b *Bash) GenerateSSHKey(path, keyName, mail, passphrase string) error {
 	return err
 }
 
-// TODO -> migrate this to go-git
 func (b *Bash) PullMerge() (string, error) {
 	cmd := exec.Command("git", "merge")
 	output, err := cmd.CombinedOutput()

@@ -32,6 +32,5 @@ type scriptHelper interface {
 	CreateDir(path, name string) error
 	GenerateSSHKey(path, keyName, mail, passphrase string) error
 
-	// TODO -> replace this with go-git merge
 	PullMerge() (string, error)
 }
