@@ -1,6 +1,7 @@
 package svc
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -190,13 +191,14 @@ func (s *Svc) SetRemoteSSHAuth() error {
 		utils.Logger(utils.LOG_SUCCESS, "keys generated")
 		// add keys to known hosts
 		hostCode := fmt.Sprintf("Host %s\n  AddKeysToAgent yes\n  IdentityFile \"%s\"", remoteDetails.Provider().HostURL(), filepath.Join(gopushDirPath, keyName))
+
 		fileContent, err := os.ReadFile(filepath.Join(os.Getenv("HOME"), ".ssh", "config"))
-		if err != nil {
+		if err != nil && !errors.Is(err, os.ErrNotExist) {
 			return err
 		}
 		fileContent = []byte(strings.Join([]string{string(fileContent), hostCode}, "\n"))
 		err = os.Remove(filepath.Join(os.Getenv("HOME"), ".ssh", "config"))
-		if err != nil {
+		if err != nil && !errors.Is(err, os.ErrNotExist) {
 			return err
 		}
 		err = os.WriteFile(filepath.Join(os.Getenv("HOME"), ".ssh", "config"), fileContent, 0777)

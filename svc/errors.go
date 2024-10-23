@@ -19,7 +19,7 @@ var (
 	ErrInvalidAuthMethod    = errors.New("invalid auth method")
 	ErrWaitExit             = errors.New("waiting for user")
 	ErrInvalidPassphrase    = errors.New("invalid passphrase")
-	ErrKeyNotSupported      = errors.New("invalid key")
+	ErrKeyNotSupported      = errors.New("invalid key on remote")
 	ErrAuthLoadFailed       = errors.New("failed to load auth")
 	ErrAlreadyUpToDate      = errors.New("already up to date")
 	ErrRemoteBranchNotFound = errors.New("remote branch not found")
