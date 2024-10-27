@@ -63,9 +63,9 @@ func (r *Root) RootCMD() *cobra.Command {
 		Long: "",
 	}
 
-	//TODO - remove git and bash dependency from handler
 	rootCMD.AddCommand(handler.Run(r.s))
 	rootCMD.AddCommand(handler.Init(r.s))
+	rootCMD.AddCommand(handler.Clone(r.s))
 
 	return rootCMD
 }
