@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/MakeNowJust/heredoc/v2"
-	"github.com/seriouspoop/gopush/svc"
+	"github.com/seriouspoop/gopush/gogresSvc"
 	"github.com/seriouspoop/gopush/utils"
 	"github.com/spf13/cobra"
 )
@@ -38,7 +38,7 @@ func Init(s servicer) *cobra.Command {
 
 			err = s.LoadProject()
 			if err != nil {
-				if errors.Is(err, svc.ErrRepoNotFound) {
+				if errors.Is(err, gogresSvc.ErrRepoNotFound) {
 					err := s.InitializeRepo()
 					if err != nil {
 						return err
@@ -61,10 +61,10 @@ func Init(s servicer) *cobra.Command {
 			// TODO -> seperate control flow for http and ssh
 			err = s.SetRemoteHTTPAuth()
 			if err != nil {
-				if errors.Is(err, svc.ErrInvalidAuthMethod) {
+				if errors.Is(err, gogresSvc.ErrInvalidAuthMethod) {
 					err := s.SetRemoteSSHAuth()
 					if err != nil {
-						if errors.Is(err, svc.ErrWaitExit) {
+						if errors.Is(err, gogresSvc.ErrWaitExit) {
 							return nil
 						}
 						return err
@@ -90,7 +90,7 @@ func Init(s servicer) *cobra.Command {
 			utils.Logger(utils.LOG_INFO, "Pulling commits from main...")
 			err = s.Pull(true)
 			if err != nil {
-				if errors.Is(err, svc.ErrPullFailed) {
+				if errors.Is(err, gogresSvc.ErrPullFailed) {
 					utils.Logger(utils.LOG_INFO, "Remote pull failed, try pulling manually.")
 				}
 				return err

@@ -1,4 +1,4 @@
-package svc
+package gogresSvc
 
 import (
 	"github.com/seriouspoop/gopush/config"
