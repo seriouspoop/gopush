@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/MakeNowJust/heredoc/v2"
+	"github.com/seriouspoop/gopush/gogresSvc"
 	"github.com/seriouspoop/gopush/model"
-	"github.com/seriouspoop/gopush/svc"
 	"github.com/seriouspoop/gopush/utils"
 	"github.com/spf13/cobra"
 )
@@ -51,7 +51,7 @@ func Run(s servicer) *cobra.Command {
 			// Load config
 			err = s.LoadConfig()
 			if err != nil {
-				if errors.Is(err, svc.ErrFileNotFound) {
+				if errors.Is(err, gogresSvc.ErrFileNotFound) {
 					fmt.Println(heredoc.Doc(`
 					Config file not found.
 					Use "gopush init" to generate your config file.
@@ -101,7 +101,7 @@ func Run(s servicer) *cobra.Command {
 			utils.Logger(utils.LOG_INFO, "Pulling remote changes...")
 			err = s.Pull(false)
 			if err != nil {
-				if errors.Is(err, svc.ErrAuthNotFound) {
+				if errors.Is(err, gogresSvc.ErrAuthNotFound) {
 					fmt.Println(heredoc.Doc(`
 					Auth credentials for current remote not found.
 					Use "gopush init" to generate your config file.
@@ -114,7 +114,7 @@ func Run(s servicer) *cobra.Command {
 			utils.Logger(utils.LOG_INFO, "Pushing changes...")
 			err = s.Push(setUpstreamBranch)
 			if err != nil {
-				if errors.Is(err, svc.ErrAuthNotFound) {
+				if errors.Is(err, gogresSvc.ErrAuthNotFound) {
 					fmt.Println(heredoc.Doc(`
 					Auth credentials for current remote are missing.
 					Run "gopush init" to setup auth credentials.
