@@ -1,4 +1,4 @@
-package gogresSvc
+package gopushSvc
 
 import (
 	"os"
