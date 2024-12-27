@@ -2,7 +2,7 @@ package internal
 
 import (
 	"github.com/MakeNowJust/heredoc/v2"
-	"github.com/seriouspoop/gopush/gogresSvc"
+	"github.com/seriouspoop/gopush/gopushSvc"
 	"github.com/seriouspoop/gopush/internal/handler"
 	"github.com/seriouspoop/gopush/repo/git"
 	"github.com/seriouspoop/gopush/repo/script"
@@ -12,33 +12,33 @@ import (
 type Root struct {
 	git  *git.Git
 	bash *script.Bash
-	s    *gogresSvc.Svc
+	s    *gopushSvc.Svc
 }
 
 func NewRoot() (*Root, error) {
 	gitHelper, err := git.New(&git.Errors{
-		RemoteNotFound:       gogresSvc.ErrRemoteNotFound,
-		RemoteNotLoaded:      gogresSvc.ErrRemoteNotLoaded,
-		RemoteAlreadyExists:  gogresSvc.ErrRemoteAlreadyExists,
-		RepoAlreadyExists:    gogresSvc.ErrRepoAlreadyExists,
-		RepoNotFound:         gogresSvc.ErrRepoNotFound,
-		PullFailed:           gogresSvc.ErrPullFailed,
-		AuthNotFound:         gogresSvc.ErrAuthNotFound,
-		InvalidAuthMethod:    gogresSvc.ErrInvalidAuthMethod,
-		InvalidPassphrase:    gogresSvc.ErrInvalidPassphrase,
-		KeyNotSupported:      gogresSvc.ErrKeyNotSupported,
-		AlreadyUpToDate:      gogresSvc.ErrAlreadyUpToDate,
-		RemoteBranchNotFound: gogresSvc.ErrRemoteBranchNotFound,
+		RemoteNotFound:       gopushSvc.ErrRemoteNotFound,
+		RemoteNotLoaded:      gopushSvc.ErrRemoteNotLoaded,
+		RemoteAlreadyExists:  gopushSvc.ErrRemoteAlreadyExists,
+		RepoAlreadyExists:    gopushSvc.ErrRepoAlreadyExists,
+		RepoNotFound:         gopushSvc.ErrRepoNotFound,
+		PullFailed:           gopushSvc.ErrPullFailed,
+		AuthNotFound:         gopushSvc.ErrAuthNotFound,
+		InvalidAuthMethod:    gopushSvc.ErrInvalidAuthMethod,
+		InvalidPassphrase:    gopushSvc.ErrInvalidPassphrase,
+		KeyNotSupported:      gopushSvc.ErrKeyNotSupported,
+		AlreadyUpToDate:      gopushSvc.ErrAlreadyUpToDate,
+		RemoteBranchNotFound: gopushSvc.ErrRemoteBranchNotFound,
 	})
 	if err != nil {
 		return nil, err
 	}
 
 	bashHelper := script.New(&script.Error{
-		FileNotExists: gogresSvc.ErrFileNotFound,
+		FileNotExists: gopushSvc.ErrFileNotFound,
 	})
 
-	s := gogresSvc.New(gitHelper, bashHelper)
+	s := gopushSvc.New(gitHelper, bashHelper)
 
 	return &Root{
 		git:  gitHelper,
@@ -50,7 +50,7 @@ func NewRoot() (*Root, error) {
 func (r *Root) RootCMD() *cobra.Command {
 	rootCMD := &cobra.Command{
 		Use:     "gopush",
-		Version: "1.1.3",
+		Version: "1.1.4",
 		Short: heredoc.Doc(`
 
 			 ██████╗   ██████╗  ██████╗  ██╗   ██╗ ███████╗ ██╗  ██╗
