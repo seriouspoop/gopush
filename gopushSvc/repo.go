@@ -156,15 +156,17 @@ func (s *Svc) CreateBranchAndSwitch(branch model.Branch) error {
 }
 
 func generateCommitMsg() (string, error) {
-	items := []string{"fix", "feature", "chore", "refactor", "ci"}
+	items := []string{"fix", "breaking fix", "feature", "breaking feature", "chore", "refactor", "ci"}
 	commitType, err := utils.Select(items)
 	if err != nil {
 		return "", err
 	}
 
 	shortner := map[string]string{
-		"refactor": "ref",
-		"feature":  "feat",
+		"refactor":         "ref",
+		"feature":          "feat",
+		"breaking fix":     "fix!",
+		"breaking feature": "feat!",
 	}
 
 	if _, ok := shortner[commitType]; ok {
