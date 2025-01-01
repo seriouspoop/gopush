@@ -50,7 +50,7 @@ func NewRoot() (*Root, error) {
 func (r *Root) RootCMD() *cobra.Command {
 	rootCMD := &cobra.Command{
 		Use:     "gopush",
-		Version: "1.1.4",
+		Version: "1.1.5",
 		Short: heredoc.Doc(`
 
 			 ██████╗   ██████╗  ██████╗  ██╗   ██╗ ███████╗ ██╗  ██╗
@@ -63,7 +63,6 @@ func (r *Root) RootCMD() *cobra.Command {
 		Long: "",
 	}
 
-	//TODO - remove git and bash dependency from handler
 	rootCMD.AddCommand(handler.Run(r.s))
 	rootCMD.AddCommand(handler.Init(r.s))
 
